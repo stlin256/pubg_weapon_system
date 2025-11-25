@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - PUBG Armory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --pubg-green: #4cd137; --pubg-dark: #0f1014; --text-grey: #b7b7b7; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
+            background: linear-gradient(rgba(15, 16, 20, 0.85), rgba(15, 16, 20, 0.95)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover; background-position: center; color: white;
+        }
+        .container {
+            background: rgba(26, 28, 33, 0.95); padding: 3rem;
+            border-top: 4px solid var(--pubg-green);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            width: 100%; max-width: 380px;
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        h1 {
+            font-family: 'Oswald', sans-serif; text-align: center; margin-bottom: 2rem;
+            text-transform: uppercase; font-size: 2rem; letter-spacing: 2px;
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--pubg-green); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        input {
+            width: 100%; padding: 12px 15px; border: 1px solid #444; background-color: rgba(0, 0, 0, 0.3);
+            color: #fff; box-sizing: border-box; font-size: 1rem; transition: all 0.3s;
+        }
+        input:focus { outline: none; border-color: var(--pubg-green); background-color: rgba(0, 0, 0, 0.5); }
+        button {
+            width: 100%; padding: 14px; border: none; background-color: var(--pubg-green); color: #fff;
+            font-family: 'Oswald', sans-serif; font-size: 1.2rem; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; transition: all 0.2s; letter-spacing: 1px; margin-top: 1rem;
+        }
+        button:hover { background-color: #44bd32; transform: translateY(-2px); }
+        .message { text-align: center; margin-top: 1rem; min-height: 24px; font-size: 0.9rem; }
+        .message.success { color: #4cd137; }
+        .message.error { color: #e84118; }
+        .sub-link { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; }
+        .sub-link a { color: var(--text-grey); text-decoration: none; transition: color 0.3s; }
+        .sub-link a:hover { color: #fff; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="lblTitle">REGISTER</h1>
+        <form id="registerForm">
+            <div class="form-group">
+                <label id="lblUser" for="username">NEW ID</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label id="lblPass" for="password">PASSWORD</label>
+                <input type="password" id="password" name="password" required autocomplete="new-password">
+            </div>
+            <button id="btnReg" type="submit">REGISTER</button>
+        </form>
+        <div id="message" class="message"></div>
+        <div class="sub-link">
+            <a id="linkLogin" href="/login">RETURN TO LOGIN</a>
+        </div>
+    </div>
+
+    <script>
+        const i18n = {
+            'zh': { title: '创建账户', user: '新学号 / ID', pass: '设置密码', btn: '注 册', link: '返回登录', msgs: { pro: '处理中...', success: '注册成功！跳转中...', fail: '注册失败', netErr: '网络错误' } },
+            'en': { title: 'CREATE ACCOUNT', user: 'NEW OPERATOR ID', pass: 'SETUP PASSWORD', btn: 'REGISTER', link: 'RETURN TO LOGIN', msgs: { pro: 'PROCESSING...', success: 'SUCCESS! REDIRECTING...', fail: 'REGISTRATION FAILED', netErr: 'NETWORK ERROR' } }
+        };
+        const lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
+        const t = i18n[lang];
+
+        document.getElementById('lblTitle').textContent = t.title;
+        document.getElementById('lblUser').textContent = t.user;
+        document.getElementById('lblPass').textContent = t.pass;
+        document.getElementById('btnReg').textContent = t.btn;
+        document.getElementById('linkLogin').textContent = t.link;
+
+        const form = document.getElementById('registerForm');
+        const messageDiv = document.getElementById('message');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            messageDiv.textContent = t.msgs.pro;
+            messageDiv.className = 'message';
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: form.username.value, password: form.password.value })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    messageDiv.textContent = t.msgs.success;
+                    messageDiv.className = 'message success';
+                    setTimeout(() => { window.location.href = '/login'; }, 2000);
+                } else {
+                    messageDiv.textContent = result.message || t.msgs.fail;
+                    messageDiv.className = 'message error';
+                }
+            } catch (error) {
+                messageDiv.textContent = t.msgs.netErr;
+                messageDiv.className = 'message error';
+            }
+        });
+    </script>
+</body>
+</html>

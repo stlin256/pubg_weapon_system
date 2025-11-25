@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PUBG Armory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --pubg-orange: #f2a900; --pubg-dark: #0f1014; --text-grey: #b7b7b7; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
+            background: linear-gradient(rgba(15, 16, 20, 0.8), rgba(15, 16, 20, 0.9)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover; background-position: center; color: white;
+        }
+        .container {
+            background: rgba(26, 28, 33, 0.95); padding: 3rem;
+            border-top: 4px solid var(--pubg-orange);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            width: 100%; max-width: 380px;
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .container::before {
+            content: ''; position: absolute; bottom: 0; right: 0; width: 20px; height: 20px;
+            border-bottom: 2px solid var(--pubg-orange); border-right: 2px solid var(--pubg-orange);
+        }
+        h1 {
+            font-family: 'Oswald', sans-serif; text-align: center; color: #fff;
+            margin-bottom: 2rem; text-transform: uppercase; font-size: 2rem; letter-spacing: 2px;
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--pubg-orange); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        input {
+            width: 100%; padding: 12px 15px; border: 1px solid #444; background-color: rgba(0, 0, 0, 0.3);
+            color: #fff; box-sizing: border-box; font-size: 1rem; transition: all 0.3s;
+        }
+        input:focus { outline: none; border-color: var(--pubg-orange); background-color: rgba(0, 0, 0, 0.5); box-shadow: 0 0 10px rgba(242, 169, 0, 0.2); }
+        button {
+            width: 100%; padding: 14px; border: none; background-color: var(--pubg-orange); color: #000;
+            font-family: 'Oswald', sans-serif; font-size: 1.2rem; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; transition: all 0.2s; letter-spacing: 1px; margin-top: 1rem;
+        }
+        button:hover { background-color: #ffc107; transform: translateY(-2px); }
+        .message { text-align: center; margin-top: 1rem; min-height: 24px; font-size: 0.9rem; }
+        .message.success { color: #4cd137; }
+        .message.error { color: #e84118; }
+        .sub-link { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; }
+        .sub-link a { color: var(--text-grey); text-decoration: none; transition: color 0.3s; }
+        .sub-link a:hover { color: var(--pubg-orange); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="lblTitle">LOGIN SYSTEM</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label id="lblUser" for="username">ID</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label id="lblPass" for="password">PASSWORD</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            <button id="btnLogin" type="submit">LOGIN</button>
+        </form>
+        <div id="message" class="message"></div>
+        <div class="sub-link">
+            <a id="linkRegister" href="/register">CREATE ACCOUNT</a>
+        </div>
+    </div>
+
+    <script>
+        // 语言包
+        const i18n = {
+            'zh': { title: '系统登录', user: '学号 / 账户', pass: '密码', btn: '登 录', link: '注册新账户', msgs: { logging: '正在连接...', success: '授权通过', fail: '拒绝访问', netErr: '网络错误' } },
+            'en': { title: 'LOGIN SYSTEM', user: 'OPERATOR ID', pass: 'PASSWORD', btn: 'LOGIN', link: 'CREATE ACCOUNT', msgs: { logging: 'CONNECTING...', success: 'ACCESS GRANTED', fail: 'ACCESS DENIED', netErr: 'NETWORK ERROR' } }
+        };
+        const lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
+        const t = i18n[lang];
+
+        // 应用文本
+        document.getElementById('lblTitle').textContent = t.title;
+        document.getElementById('lblUser').textContent = t.user;
+        document.getElementById('lblPass').textContent = t.pass;
+        document.getElementById('btnLogin').textContent = t.btn;
+        document.getElementById('linkRegister').textContent = t.link;
+
+        const form = document.getElementById('loginForm');
+        const messageDiv = document.getElementById('message');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const username = form.username.value;
+            const password = form.password.value;
+            messageDiv.textContent = t.msgs.logging;
+            messageDiv.className = 'message';
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+
+                if (response.ok && result.redirect) {
+                    messageDiv.textContent = t.msgs.success;
+                    messageDiv.className = 'message success';
+                    localStorage.setItem('loggedInUser', username);
+                    setTimeout(() => { window.location.href = result.redirect; }, 1000);
+                } else {
+                    messageDiv.textContent = result.message || t.msgs.fail;
+                    messageDiv.className = 'message error';
+                }
+            } catch (error) {
+                messageDiv.textContent = t.msgs.netErr;
+                messageDiv.className = 'message error';
+            }
+        });
+    </script>
+</body>
+</html>

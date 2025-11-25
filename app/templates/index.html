@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUBG Armory</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0f1014;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #f2a900;
+            background: radial-gradient(circle, #2c3038 0%, #0f1014 100%);
+        }
+        .loader-container { text-align: center; }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 3px solid rgba(242, 169, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: #f2a900;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 20px;
+        }
+        h2 {
+            text-transform: uppercase; letter-spacing: 2px;
+            font-size: 1.2rem; animation: pulse 1.5s infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+    <div class="loader-container">
+        <div class="spinner"></div>
+        <h2 id="loadingText">CONNECTING...</h2>
+    </div>
+
+    <script>
+        // 简单的语言字典
+        const i18n = {
+            'zh': { loading: '正在连接大厅...' },
+            'en': { loading: 'CONNECTING TO LOBBY...' }
+        };
+        // 语言检测
+        const lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
+        document.getElementById('loadingText').textContent = i18n[lang].loading;
+
+        // 逻辑跳转
+        const loggedInUser = localStorage.getItem('loggedInUser');
+        setTimeout(() => {
+            window.location.href = loggedInUser ? '/dashboard' : '/login';
+        }, 800);
+    </script>
+</body>
+</html>

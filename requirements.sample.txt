@@ -1,0 +1,22 @@
+# Web Framework
+fastapi
+uvicorn[standard]
+python-multipart
+Jinja2
+
+# Data & Security
+pandas
+openpyxl
+pycryptodome
+
+# Machine Learning - Classic
+scikit-learn
+xgboost
+librosa
+
+# Machine Learning - Deep Learning
+torch
+torchaudio
+transformers
+datasets
+accelerate
