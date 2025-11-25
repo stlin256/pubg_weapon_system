@@ -7,51 +7,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Roboto+Mono:wght@400;500&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --orange: #f2a900;
-            --dark-bg: #14151a;
-            --panel-bg: #1e2126;
-            --border-color: #383b42;
-            --text-main: #e2e8f0;
-            --text-muted: #a0aec0;
-            --danger: #e84118;
+            --orange: #f2a900; --dark-bg: #14151a; --panel-bg: #1e2126; --border-color: #383b42;
+            --text-main: #e2e8f0; --text-muted: #a0aec0; --danger: #e84118; --blue: #3182ce;
         }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         * { -webkit-tap-highlight-color: transparent; }
-
         body {
             font-family: 'Roboto', sans-serif; background-color: #0f1014; color: var(--text-main);
             margin: 0; padding: 0; min-height: 100vh;
             background-image: linear-gradient(0deg, rgba(15,16,20,0.95) 0%, rgba(15,16,20,0.8) 100%), url('https://images.unsplash.com/photo-1595393663736-61841369c735?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
             background-attachment: fixed; background-size: cover;
         }
-
         .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; animation: fadeIn 0.5s ease-out; }
-
         .header {
             display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0;
             margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); position: relative;
         }
-        .header::after {
-            content: ''; position: absolute; bottom: -2px; left: 0; width: 100px; height: 2px;
-            background: var(--orange); box-shadow: 0 0 10px var(--orange);
-        }
+        .header::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100px; height: 2px; background: var(--orange); box-shadow: 0 0 10px var(--orange); }
         .header h1 { font-family: 'Oswald', sans-serif; margin: 0; font-size: 2rem; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
         .user-tag { font-size: 0.9rem; color: var(--orange); font-family: 'Roboto Mono', monospace; margin-left: 10px; opacity: 0.8; }
-
         .btn {
             padding: 0.6rem 1.2rem; border-radius: 2px; cursor: pointer; border: none;
             font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px;
-            transition: all 0.2s; font-weight: 600;
-            white-space: nowrap; 
+            transition: all 0.2s; font-weight: 600; white-space: nowrap; 
             display: inline-flex; align-items: center; justify-content: center;
         }
         .btn-logout { background-color: transparent; border: 1px solid var(--danger); color: var(--danger); }
         .btn-add { background-color: var(--orange); color: #000; }
         .btn-edit { background-color: #2f3640; color: #fff; border: 1px solid #7f8fa6; margin-right: 5px; }
         .btn-delete { background-color: rgba(232, 65, 24, 0.1); color: var(--danger); border: 1px solid var(--danger); }
-        
         @media (hover: hover) {
             .btn-logout:hover { background-color: var(--danger); color: white; }
             .btn-add:hover { background-color: #ffc107; transform: scale(1.05); }
@@ -59,7 +43,6 @@
             .btn-delete:hover { background-color: var(--danger); color: white; }
         }
         .btn:active { transform: scale(0.96); opacity: 0.8; }
-
         .controls {
             display: flex; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
             background: rgba(30, 33, 38, 0.6); padding: 1rem; border-radius: 4px; border-left: 3px solid var(--orange);
@@ -69,7 +52,6 @@
             background-color: rgba(0,0,0,0.5); color: #fff; width: 250px; font-family: 'Roboto Mono', monospace;
         }
         .search-box input:focus { outline: none; border-color: var(--orange); }
-
         .grid-container {
             display: grid; 
             grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 160px; 
@@ -81,112 +63,69 @@
             cursor: pointer; display: flex; align-items: center; transition: color 0.2s;
             user-select: none; -webkit-user-select: none;
         }
-        
         .grid-row { display: contents; }
-        
-        .grid-cell {
-            padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex; align-items: center; font-family: 'Roboto Mono', monospace; font-size: 0.95rem;
-        }
-
+        .grid-cell { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; font-family: 'Roboto Mono', monospace; font-size: 0.95rem; }
         @media (hover: hover) {
             .grid-row:hover .grid-cell { background-color: rgba(242, 169, 0, 0.05); }
             .header-cell:hover { color: var(--orange); }
         }
-
-        .stat-bar {
-            width: 60px; height: 4px; background: #333; margin-left: 10px;
-            display: inline-block; border-radius: 2px; overflow: hidden; vertical-align: middle;
-        }
+        .stat-bar { width: 60px; height: 4px; background: #333; margin-left: 10px; display: inline-block; border-radius: 2px; overflow: hidden; vertical-align: middle; }
         .stat-fill { height: 100%; background: var(--orange); box-shadow: 0 0 5px var(--orange); }
-        
         .sort-arrows { display: flex; flex-direction: column; margin-left: 8px; gap: 2px; }
         .arrow { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; opacity: 0.3; }
         .arrow-up { border-bottom: 4px solid currentColor; }
         .arrow-down { border-top: 4px solid currentColor; }
         .header-cell.asc .arrow-up, .header-cell.desc .arrow-down { opacity: 1; color: var(--orange); }
 
+        .firing-mode-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+        .mode-tag {
+            padding: 2px 6px; font-size: 0.75rem; border-radius: 3px;
+            font-family: 'Roboto Mono', monospace; text-transform: uppercase;
+        }
+        .mode-tag.single { background-color: rgba(66, 153, 225, 0.2); color: #63b3ed; border: 1px solid #4299e1; }
+        .mode-tag.auto { background-color: rgba(237, 100, 166, 0.2); color: #ed64a6; border: 1px solid #d53f8c; }
+        .mode-tag.burst { background-color: rgba(104, 211, 145, 0.2); color: #68d391; border: 1px solid #48bb78; }
+
         @media (max-width: 900px) {
             .grid-container { display: block; background: transparent; border: none; }
             .grid-header { display: none; }
-            
             .grid-row {
                 display: block; background: #1e2126; margin-bottom: 1rem;
                 border-radius: 4px; border-left: 3px solid #383b42; padding: 1rem;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.1s;
-                user-select: none; 
-                -webkit-user-select: none;
+                user-select: none; -webkit-user-select: none;
             }
-            
             .grid-row:active { transform: scale(0.98); border-left-color: var(--orange); }
-
-            .grid-cell {
-                padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.03);
-                justify-content: space-between; display: flex;
-            }
-            
+            .grid-cell { padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); justify-content: space-between; display: flex; }
             .cell-content { display: flex; align-items: center; justify-content: flex-end; text-align: right; }
-
-            .grid-cell[data-label="name"] {
-                font-family: 'Oswald', sans-serif; font-size: 1.4rem; color: #fff;
-                border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem; padding-bottom: 0.5rem;
-            }
+            .grid-cell[data-label="name"] { font-family: 'Oswald', sans-serif; font-size: 1.4rem; color: #fff; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem; padding-bottom: 0.5rem; }
             .grid-cell[data-label="name"]:before { display: none; }
-
-            .grid-cell:before {
-                content: attr(data-mobile-label);
-                color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: bold;
-                margin-right: 1rem;
-            }
-
-            .grid-cell.actions {
-                margin-top: 1rem; justify-content: flex-end; border-top: 1px solid var(--border-color);
-                padding-top: 1rem; border-bottom: none;
-                gap: 10px;
-            }
+            .grid-cell:before { content: attr(data-mobile-label); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: bold; margin-right: 1rem; }
+            .grid-cell.actions { margin-top: 1rem; justify-content: flex-end; border-top: 1px solid var(--border-color); padding-top: 1rem; border-bottom: none; gap: 10px; }
             .grid-cell.actions:before { display: none; }
-            
             .controls { flex-direction: column; }
             .search-box input { width: 100%; box-sizing: border-box; }
         }
 
-        .modal {
-            display: none; position: fixed; z-index: 100; left: 0; top: 0;
-            width: 100%; height: 100%; overflow: auto;
-            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background-color: #1e2126; margin: 10% auto; padding: 2rem;
-            border: 1px solid var(--border-color); width: 85%; max-width: 500px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5); animation: fadeIn 0.3s; position: relative;
-        }
-        .modal-content::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--orange);
-        }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+        .modal-content { background-color: #1e2126; margin: 10% auto; padding: 2rem; border: 1px solid var(--border-color); width: 85%; max-width: 500px; box-shadow: 0 0 30px rgba(0,0,0,0.5); animation: fadeIn 0.3s; position: relative; }
+        .modal-content::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--orange); }
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; padding: 0 10px; }
         .close:hover { color: var(--orange); }
-        
-        #modalTitle {
-            margin-top: 0; color: #fff; font-family: 'Oswald', sans-serif; text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;
-        }
+        #modalTitle { margin-top: 0; color: #fff; font-family: 'Oswald', sans-serif; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
         .form-row { margin-bottom: 1.2rem; }
         .form-row label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
-        .form-row input {
-            width: 100%; padding: 0.8rem; background: #0f1014; border: 1px solid var(--border-color);
-            color: white; font-family: 'Roboto Mono', monospace; box-sizing: border-box;
-        }
+        .form-row input[type="text"], .form-row input[type="number"] { width: 100%; padding: 0.8rem; background: #0f1014; border: 1px solid var(--border-color); color: white; font-family: 'Roboto Mono', monospace; box-sizing: border-box; }
         .form-row input:focus { outline: none; border-color: var(--orange); }
+        .checkbox-group { display: flex; gap: 15px; align-items: center; }
+        .checkbox-group label { display: flex; align-items: center; cursor: pointer; }
+        .checkbox-group input { width: auto; margin-right: 5px; }
         .btn-save { width: 100%; padding: 1rem; background: var(--orange); color: black; font-weight: bold; margin-top: 1rem; }
-
-        .version-indicator {
-            position: fixed; bottom: 20px; right: 20px;
-            font-family: 'Roboto Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.3); pointer-events: none;
-        }
+        .version-indicator { position: fixed; bottom: 20px; right: 20px; font-family: 'Roboto Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.3); pointer-events: none; }
     </style>
 </head>
 <body>
-    <div class="version-indicator">V8.0 // FINAL</div>
+    <div class="version-indicator">V8.1 // FINAL</div>
     
     <div class="container">
         <div class="header">
@@ -222,7 +161,14 @@
                 <input type="hidden" id="originalName">
                 <div class="form-row"><label data-t-label="name"></label><input type="text" id="name" required></div>
                 <div class="form-row"><label data-t-label="dmg"></label><input type="number" id="damage" required></div>
-                <div class="form-row"><label data-t-label="mode"></label><input type="text" id="firing_mode" required></div>
+                <div class="form-row">
+                    <label data-t-label="mode"></label>
+                    <div id="firingModeCheckboxes" class="checkbox-group">
+                        <label><input type="checkbox" name="firing_mode" value="single"> Single</label>
+                        <label><input type="checkbox" name="firing_mode" value="burst"> Burst</label>
+                        <label><input type="checkbox" name="firing_mode" value="auto"> Auto</label>
+                    </div>
+                </div>
                 <div class="form-row"><label data-t-label="cap"></label><input type="number" id="capacity" required></div>
                 <div class="form-row"><label data-t-label="mags"></label><input type="number" id="mag_count" required></div>
                 <div class="form-row"><label data-t-label="ammo"></label><input type="number" id="ammo_in_mag" required></div>
@@ -282,6 +228,12 @@
                 } catch (error) { console.error(error); }
             };
 
+            const renderFiringModes = (modeString) => {
+                if (!modeString || typeof modeString !== 'string') return '';
+                const modes = modeString.replace(/[{}]/g, '').split(',').map(m => m.trim().toLowerCase());
+                return modes.map(mode => `<span class="mode-tag ${mode}">${mode}</span>`).join(' ');
+            };
+
             const renderTable = () => {
                 let displayWeapons = [...weapons].filter(w => w.name.toLowerCase().includes(searchInput.value.toLowerCase()));
 
@@ -305,7 +257,7 @@
                     row.innerHTML = `
                         <div class="grid-cell" data-label="name"><div class="cell-content"><strong>${weapon.name}</strong></div></div>
                         <div class="grid-cell" data-mobile-label="${t.colDmg}"><div class="cell-content"><span>${weapon.damage}</span><div class="stat-bar"><div class="stat-fill" style="width: ${weapon.damage}%"></div></div></div></div>
-                        <div class="grid-cell" data-mobile-label="${t.colMode}"><div class="cell-content">${weapon.firing_mode}</div></div>
+                        <div class="grid-cell" data-mobile-label="${t.colMode}"><div class="cell-content firing-mode-tags">${renderFiringModes(weapon.firing_mode)}</div></div>
                         <div class="grid-cell" data-mobile-label="${t.colCap}"><div class="cell-content">${weapon.capacity}</div></div>
                         <div class="grid-cell" data-mobile-label="${t.colMags}"><div class="cell-content">${weapon.mag_count}</div></div>
                         <div class="grid-cell" data-mobile-label="${t.colAmmo}" style="color:${weapon.ammo_in_mag / weapon.capacity < 0.3 ? 'var(--danger)' : 'inherit'}"><div class="cell-content">${weapon.ammo_in_mag}</div></div>
@@ -323,13 +275,25 @@
                 document.getElementById('weaponForm').reset();
                 document.getElementById('modalTitle').textContent = mode === 'add' ? t.modalAdd : t.modalEdit;
                 document.getElementById('originalName').value = weapon ? weapon.name : '';
+                
+                // Reset checkboxes
+                document.querySelectorAll('#firingModeCheckboxes input').forEach(cb => cb.checked = false);
+
                 if (weapon) {
                     document.getElementById('name').value = weapon.name;
                     document.getElementById('damage').value = weapon.damage;
-                    document.getElementById('firing_mode').value = weapon.firing_mode;
                     document.getElementById('capacity').value = weapon.capacity;
                     document.getElementById('mag_count').value = weapon.mag_count;
                     document.getElementById('ammo_in_mag').value = weapon.ammo_in_mag;
+                    
+                    // Set checkboxes based on firing_mode string
+                    if (weapon.firing_mode) {
+                        const modes = weapon.firing_mode.replace(/[{}]/g, '').split(',').map(m => m.trim().toLowerCase());
+                        modes.forEach(mode => {
+                            const cb = document.querySelector(`#firingModeCheckboxes input[value="${mode}"]`);
+                            if (cb) cb.checked = true;
+                        });
+                    }
                 }
                 modal.style.display = 'block';
             };
@@ -355,10 +319,15 @@
             document.getElementById('weaponForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const originalName = document.getElementById('originalName').value;
+                
+                // Get selected firing modes from checkboxes
+                const selectedModes = Array.from(document.querySelectorAll('#firingModeCheckboxes input:checked')).map(cb => cb.value);
+                const firingModeString = `{${selectedModes.join(', ')}}`;
+
                 const weaponData = {
                     name: document.getElementById('name').value,
                     damage: parseFloat(document.getElementById('damage').value),
-                    firing_mode: document.getElementById('firing_mode').value,
+                    firing_mode: firingModeString,
                     capacity: parseInt(document.getElementById('capacity').value),
                     mag_count: parseInt(document.getElementById('mag_count').value),
                     ammo_in_mag: parseInt(document.getElementById('ammo_in_mag').value)
