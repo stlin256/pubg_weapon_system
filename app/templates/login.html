@@ -4,15 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - PUBG Armory</title>
+    <!-- 引入战术风格字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        /* --- 变量定义 --- */
         :root { --pubg-orange: #f2a900; --pubg-dark: #0f1014; --text-grey: #b7b7b7; }
+        
         body {
             font-family: 'Roboto', sans-serif;
             display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
             background: linear-gradient(rgba(15, 16, 20, 0.8), rgba(15, 16, 20, 0.9)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
             background-size: cover; background-position: center; color: white;
+            position: relative; /* 为绝对定位的语言切换器提供参照 */
         }
+
+        /* --- 语言切换器 (右上角悬浮) --- */
+        .lang-switcher-container {
+            position: absolute; top: 20px; right: 20px; z-index: 10;
+        }
+        .lang-switcher {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 70px; height: 26px;
+            border: 1px solid #555; border-radius: 4px;
+            cursor: pointer; overflow: hidden;
+            font-family: 'Oswald', sans-serif; font-size: 0.85rem;
+            transition: all 0.3s ease;
+            filter: grayscale(100%); opacity: 0.6; background: rgba(0,0,0,0.5);
+        }
+        /* 悬停效果：无边框、去黑白、放大 */
+        @media (hover: hover) {
+            .lang-switcher:hover {
+                transform: scale(1.1);
+                filter: grayscale(0%);
+                opacity: 1;
+                border-color: transparent; /* 关键：放大时无边框 */
+            }
+        }
+        .lang-option { flex: 1; text-align: center; color: #888; transition: color 0.3s; z-index: 2; }
+        .lang-option.active { color: #fff; font-weight: bold; background: var(--pubg-orange); color: #000; height: 100%; display: flex; align-items: center; justify-content: center;}
+
+        /* --- 登录卡片容器 --- */
         .container {
             background: rgba(26, 28, 33, 0.95); padding: 3rem;
             border-top: 4px solid var(--pubg-orange);
@@ -22,14 +53,24 @@
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
         }
+        /* 装饰性右下角 */
         .container::before {
             content: ''; position: absolute; bottom: 0; right: 0; width: 20px; height: 20px;
             border-bottom: 2px solid var(--pubg-orange); border-right: 2px solid var(--pubg-orange);
         }
-        h1 {
-            font-family: 'Oswald', sans-serif; text-align: center; color: #fff;
-            margin-bottom: 2rem; text-transform: uppercase; font-size: 2rem; letter-spacing: 2px;
+
+        /* --- 标题区域 --- */
+        .system-header { text-align: center; margin-bottom: 2rem; }
+        .system-name {
+            display: block; font-family: 'Roboto', sans-serif; font-size: 0.75rem; letter-spacing: 3px;
+            color: var(--pubg-orange); margin-bottom: 0.5rem; text-transform: uppercase; font-weight: bold;
         }
+        h1 {
+            font-family: 'Oswald', sans-serif; margin: 0; color: #fff;
+            text-transform: uppercase; font-size: 2.2rem; letter-spacing: 2px; line-height: 1;
+        }
+
+        /* --- 表单样式 --- */
         .form-group { margin-bottom: 1.5rem; }
         label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--pubg-orange); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
         input {
@@ -43,18 +84,33 @@
             text-transform: uppercase; cursor: pointer; transition: all 0.2s; letter-spacing: 1px; margin-top: 1rem;
         }
         button:hover { background-color: #ffc107; transform: translateY(-2px); }
+        
         .message { text-align: center; margin-top: 1rem; min-height: 24px; font-size: 0.9rem; }
         .message.success { color: #4cd137; }
         .message.error { color: #e84118; }
         .sub-link { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; }
         .sub-link a { color: var(--text-grey); text-decoration: none; transition: color 0.3s; }
         .sub-link a:hover { color: var(--pubg-orange); }
+        
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
+    <!-- 语言切换器 (绝对定位) -->
+    <div class="lang-switcher-container">
+        <div class="lang-switcher" id="langSwitcher">
+            <div class="lang-option" data-lang="zh">中</div>
+            <div class="lang-option" data-lang="en">EN</div>
+        </div>
+    </div>
+
     <div class="container">
-        <h1 id="lblTitle">LOGIN SYSTEM</h1>
+        <!-- 强化标题设计 -->
+        <div class="system-header">
+            <span class="system-name" id="lblSystemName">PUBG WEAPON SYSTEM</span>
+            <h1 id="lblTitle">LOGIN</h1>
+        </div>
+        
         <form id="loginForm">
             <div class="form-group">
                 <label id="lblUser" for="username">ID</label>
@@ -73,28 +129,77 @@
     </div>
 
     <script>
-        // 语言包
+        // 国际化配置
         const i18n = {
-            'zh': { title: '系统登录', user: '学号 / 账户', pass: '密码', btn: '登 录', link: '注册新账户', msgs: { logging: '正在连接...', success: '授权通过', fail: '拒绝访问', netErr: '网络错误' } },
-            'en': { title: 'LOGIN SYSTEM', user: 'OPERATOR ID', pass: 'PASSWORD', btn: 'LOGIN', link: 'CREATE ACCOUNT', msgs: { logging: 'CONNECTING...', success: 'ACCESS GRANTED', fail: 'ACCESS DENIED', netErr: 'NETWORK ERROR' } }
+            'zh': { 
+                pageTitle: '登录 - PUBG 武器系统',
+                systemName: 'PUBG 武器管理系统',
+                title: '系统登录', 
+                user: '学号 / 账户', 
+                pass: '密码', 
+                btn: '登 录', 
+                link: '注册新账户', 
+                msgs: { logging: '正在连接...', success: '授权通过', fail: '拒绝访问', netErr: '网络错误' } 
+            },
+            'en': { 
+                pageTitle: 'Login - PUBG Armory',
+                systemName: 'PUBG WEAPON SYSTEM',
+                title: 'LOGIN ACCESS', 
+                user: 'OPERATOR ID', 
+                pass: 'PASSWORD', 
+                btn: 'LOGIN', 
+                link: 'CREATE ACCOUNT', 
+                msgs: { logging: 'CONNECTING...', success: 'ACCESS GRANTED', fail: 'ACCESS DENIED', netErr: 'NETWORK ERROR' } 
+            }
         };
-        const lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
-        const t = i18n[lang];
 
-        // 应用文本
-        document.getElementById('lblTitle').textContent = t.title;
-        document.getElementById('lblUser').textContent = t.user;
-        document.getElementById('lblPass').textContent = t.pass;
-        document.getElementById('btnLogin').textContent = t.btn;
-        document.getElementById('linkRegister').textContent = t.link;
-
+        // 语言初始化逻辑
+        let currentLang = localStorage.getItem('lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+        
+        // DOM 元素引用
+        const langSwitcher = document.getElementById('langSwitcher');
         const form = document.getElementById('loginForm');
         const messageDiv = document.getElementById('message');
 
+        // 应用语言函数
+        function applyLanguage(lang) {
+            const t = i18n[lang];
+            currentLang = lang;
+            localStorage.setItem('lang', lang); // 保存偏好
+
+            // 更新浏览器标题栏
+            document.title = t.pageTitle;
+
+            // 更新页面文本
+            document.getElementById('lblSystemName').textContent = t.systemName;
+            document.getElementById('lblTitle').textContent = t.title;
+            document.getElementById('lblUser').textContent = t.user;
+            document.getElementById('lblPass').textContent = t.pass;
+            document.getElementById('btnLogin').textContent = t.btn;
+            document.getElementById('linkRegister').textContent = t.link;
+
+            // 更新切换器状态
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.lang === lang);
+            });
+        }
+
+        // 初始化
+        applyLanguage(currentLang);
+
+        // 语言切换点击事件
+        langSwitcher.addEventListener('click', () => {
+            const newLang = currentLang === 'zh' ? 'en' : 'zh';
+            applyLanguage(newLang);
+        });
+
+        // 表单提交逻辑
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
             const username = form.username.value;
             const password = form.password.value;
+            const t = i18n[currentLang]; // 获取当前语言的提示
+
             messageDiv.textContent = t.msgs.logging;
             messageDiv.className = 'message';
 

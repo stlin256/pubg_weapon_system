@@ -4,14 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>武器库 - PUBG 武器管理系统</title>
+    <!-- 引入字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Roboto+Mono:wght@400;500&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        /* --- 全局变量定义 --- */
         :root {
             --orange: #f2a900; --dark-bg: #14151a; --panel-bg: #1e2126; --border-color: #383b42;
             --text-main: #e2e8f0; --text-muted: #a0aec0; --danger: #e84118; --blue: #3182ce;
+            --lang-zh-color: #c53030; --lang-en-color: #2b6cb0;
         }
+
+        /* --- 动画定义 --- */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        * { -webkit-tap-highlight-color: transparent; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes loadProgress { 0% { left: -50%; } 100% { left: 100%; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        /* --- 基础样式 --- */
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             font-family: 'Roboto', sans-serif; background-color: #0f1014; color: var(--text-main);
             margin: 0; padding: 0; min-height: 100vh;
@@ -19,6 +30,8 @@
             background-attachment: fixed; background-size: cover;
         }
         .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; animation: fadeIn 0.5s ease-out; }
+
+        /* --- 顶部导航栏 --- */
         .header {
             display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0;
             margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); position: relative;
@@ -26,6 +39,9 @@
         .header::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100px; height: 2px; background: var(--orange); box-shadow: 0 0 10px var(--orange); }
         .header h1 { font-family: 'Oswald', sans-serif; margin: 0; font-size: 2rem; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
         .user-tag { font-size: 0.9rem; color: var(--orange); font-family: 'Roboto Mono', monospace; margin-left: 10px; opacity: 0.8; }
+        .header-actions { display: flex; align-items: center; gap: 1rem; }
+
+        /* --- 按钮样式 --- */
         .btn {
             padding: 0.6rem 1.2rem; border-radius: 2px; cursor: pointer; border: none;
             font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px;
@@ -36,6 +52,7 @@
         .btn-add { background-color: var(--orange); color: #000; }
         .btn-edit { background-color: #2f3640; color: #fff; border: 1px solid #7f8fa6; margin-right: 5px; }
         .btn-delete { background-color: rgba(232, 65, 24, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        
         @media (hover: hover) {
             .btn-logout:hover { background-color: var(--danger); color: white; }
             .btn-add:hover { background-color: #ffc107; transform: scale(1.05); }
@@ -43,6 +60,8 @@
             .btn-delete:hover { background-color: var(--danger); color: white; }
         }
         .btn:active { transform: scale(0.96); opacity: 0.8; }
+
+        /* --- 控制栏与表格 --- */
         .controls {
             display: flex; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
             background: rgba(30, 33, 38, 0.6); padding: 1rem; border-radius: 4px; border-left: 3px solid var(--orange);
@@ -52,6 +71,7 @@
             background-color: rgba(0,0,0,0.5); color: #fff; width: 250px; font-family: 'Roboto Mono', monospace;
         }
         .search-box input:focus { outline: none; border-color: var(--orange); }
+        
         .grid-container {
             display: grid; 
             grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr 1fr 160px; 
@@ -69,6 +89,8 @@
             .grid-row:hover .grid-cell { background-color: rgba(242, 169, 0, 0.05); }
             .header-cell:hover { color: var(--orange); }
         }
+
+        /* --- 可视化组件 --- */
         .stat-bar { width: 60px; height: 4px; background: #333; margin-left: 10px; display: inline-block; border-radius: 2px; overflow: hidden; vertical-align: middle; }
         .stat-fill { height: 100%; background: var(--orange); box-shadow: 0 0 5px var(--orange); }
         .sort-arrows { display: flex; flex-direction: column; margin-left: 8px; gap: 2px; }
@@ -76,25 +98,16 @@
         .arrow-up { border-bottom: 4px solid currentColor; }
         .arrow-down { border-top: 4px solid currentColor; }
         .header-cell.asc .arrow-up, .header-cell.desc .arrow-down { opacity: 1; color: var(--orange); }
-
         .firing-mode-tags { display: flex; gap: 5px; flex-wrap: wrap; }
-        .mode-tag {
-            padding: 2px 6px; font-size: 0.75rem; border-radius: 3px;
-            font-family: 'Roboto Mono', monospace; text-transform: uppercase;
-        }
-        .mode-tag.single { background-color: rgba(66, 153, 225, 0.2); color: #63b3ed; border: 1px solid #4299e1; }
-        .mode-tag.auto { background-color: rgba(237, 100, 166, 0.2); color: #ed64a6; border: 1px solid #d53f8c; }
-        .mode-tag.burst { background-color: rgba(104, 211, 145, 0.2); color: #68d391; border: 1px solid #48bb78; }
+        .mode-tag { padding: 2px 8px; font-size: 0.75rem; border-radius: 3px; font-family: 'Roboto Mono', monospace; text-transform: uppercase; border: 1px solid; }
+        .mode-tag.single { border-color: #4299e1; color: #63b3ed; background-color: rgba(66, 153, 225, 0.1); }
+        .mode-tag.auto { border-color: #d53f8c; color: #ed64a6; background-color: rgba(237, 100, 166, 0.1); }
 
+        /* --- 移动端响应式 --- */
         @media (max-width: 900px) {
             .grid-container { display: block; background: transparent; border: none; }
             .grid-header { display: none; }
-            .grid-row {
-                display: block; background: #1e2126; margin-bottom: 1rem;
-                border-radius: 4px; border-left: 3px solid #383b42; padding: 1rem;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.1s;
-                user-select: none; -webkit-user-select: none;
-            }
+            .grid-row { display: block; background: #1e2126; margin-bottom: 1rem; border-radius: 4px; border-left: 3px solid #383b42; padding: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.1s; user-select: none; -webkit-user-select: none; }
             .grid-row:active { transform: scale(0.98); border-left-color: var(--orange); }
             .grid-cell { padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); justify-content: space-between; display: flex; }
             .cell-content { display: flex; align-items: center; justify-content: flex-end; text-align: right; }
@@ -107,32 +120,153 @@
             .search-box input { width: 100%; box-sizing: border-box; }
         }
 
+        /* --- 弹窗与表单 --- */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
         .modal-content { background-color: #1e2126; margin: 10% auto; padding: 2rem; border: 1px solid var(--border-color); width: 85%; max-width: 500px; box-shadow: 0 0 30px rgba(0,0,0,0.5); animation: fadeIn 0.3s; position: relative; }
         .modal-content::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--orange); }
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; padding: 0 10px; }
         .close:hover { color: var(--orange); }
         #modalTitle { margin-top: 0; color: #fff; font-family: 'Oswald', sans-serif; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
-        .form-row { margin-bottom: 1.2rem; }
+        .form-row { margin-bottom: 1.5rem; position: relative; } 
         .form-row label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
-        .form-row input[type="text"], .form-row input[type="number"] { width: 100%; padding: 0.8rem; background: #0f1014; border: 1px solid var(--border-color); color: white; font-family: 'Roboto Mono', monospace; box-sizing: border-box; }
+        .form-row input[type="text"], .form-row input[type="number"] { width: 100%; padding: 0.8rem; background: #0f1014; border: 1px solid var(--border-color); color: white; font-family: 'Roboto Mono', monospace; box-sizing: border-box; transition: border-color 0.3s; }
         .form-row input:focus { outline: none; border-color: var(--orange); }
-        .checkbox-group { display: flex; gap: 15px; align-items: center; }
-        .checkbox-group label { display: flex; align-items: center; cursor: pointer; }
-        .checkbox-group input { width: auto; margin-right: 5px; }
+        
+        /* --- 验证提示样式 (优化版) --- */
+        .form-row input.error { border-color: var(--danger); animation: shake 0.3s ease-in-out; }
+        .pubg-tooltip {
+            position: absolute; 
+            top: 100%; /* 显示在下方 */
+            right: 0; 
+            margin-top: 8px; /* 下方间距 */
+            background-color: rgba(232, 65, 24, 0.9); 
+            color: white;
+            padding: 4px 8px; 
+            font-size: 0.75rem; 
+            font-family: 'Oswald', sans-serif; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            border-radius: 2px; 
+            border: 1px solid var(--danger);
+            pointer-events: none; 
+            opacity: 0; 
+            transform: translateY(-5px); 
+            transition: all 0.2s; 
+            z-index: 10;
+        }
+        .pubg-tooltip.visible { opacity: 1; transform: translateY(0); }
+        /* 气泡小箭头 (向上指) */
+        .pubg-tooltip::after {
+            content: ''; position: absolute; 
+            bottom: 100%; /* 在气泡上方 */
+            right: 10px;
+            border-width: 5px; border-style: solid;
+            border-color: transparent transparent var(--danger) transparent; /* 红色三角形向上 */
+        }
+
+        .tag-selector { display: flex; gap: 10px; padding: 0.8rem; background: #0f1014; border-radius: 4px; border: 1px solid var(--border-color); min-height: 23px; align-items: center;}
+        .tag-option { padding: 3px 10px; font-size: 0.9em; border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 4px; cursor: pointer; transition: all 0.2s; user-select: none; }
+        .tag-option.active.single { background-color: rgba(66, 153, 225, 0.2); color: #63b3ed; border-color: #4299e1; }
+        .tag-option.active.auto { background-color: rgba(237, 100, 166, 0.2); color: #ed64a6; border-color: #d53f8c; }
         .btn-save { width: 100%; padding: 1rem; background: var(--orange); color: black; font-weight: bold; margin-top: 1rem; }
         .version-indicator { position: fixed; bottom: 20px; right: 20px; font-family: 'Roboto Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.3); pointer-events: none; }
+        
+        #confirmModal .modal-content { max-width: 400px; text-align: center; }
+        #confirmText { font-family: 'Oswald', sans-serif; color: var(--text-main); margin-bottom: 1.5rem; font-size: 1.2rem; text-transform: uppercase; }
+        .confirm-actions { display: flex; justify-content: center; gap: 1rem; }
+        .btn-confirm { background-color: var(--danger); color: white; }
+        .btn-cancel { background-color: #4a5568; color: white; }
+
+        /* --- 语言切换器 (优化版) --- */
+        .lang-switcher {
+            position: relative; display: flex; align-items: center;
+            width: 80px; height: 28px;
+            border-radius: 4px; cursor: pointer;
+            font-family: 'Oswald', sans-serif; overflow: hidden;
+            transition: all 0.2s;
+            filter: grayscale(100%); /* 默认黑白灰 */
+            opacity: 0.7;
+        }
+        
+        /* 鼠标悬停时恢复色彩和高亮 */
+        @media (hover: hover) { 
+            .lang-switcher:hover { 
+                transform: scale(1.05); 
+                filter: grayscale(0%); 
+                opacity: 1;
+            } 
+        }
+
+        .lang-switcher span { flex: 1; text-align: center; z-index: 2; transition: color 0.4s; font-size: 0.9em; }
+        .lang-switcher .lang-option { color: var(--text-muted); }
+        .lang-switcher .active { color: #fff; }
+        
+        .lang-switcher .glider {
+            position: absolute; top: 0; left: 0;
+            width: 50%; height: 100%; z-index: 1;
+            clip-path: polygon(15% 0, 100% 0, 85% 100%, 0% 100%);
+            transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .lang-switcher.zh .glider { background: var(--lang-zh-color); box-shadow: 0 0 10px var(--lang-zh-color); transform: translateX(0); }
+        .lang-switcher.en .glider { background: var(--lang-en-color); box-shadow: 0 0 10px var(--lang-en-color); transform: translateX(100%); }
+
+        /* --- 语言切换加载遮罩 --- */
+        #languageLoader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #0f1014; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        #languageLoader.active { opacity: 1; pointer-events: auto; }
+        .loader-text {
+            font-family: 'Oswald', sans-serif; color: var(--orange);
+            font-size: 1.5rem; letter-spacing: 3px;
+            animation: blink 0.8s infinite;
+        }
+        .loader-bar {
+            width: 200px; height: 2px; background: #333; margin-top: 15px; position: relative; overflow: hidden;
+        }
+        .loader-progress {
+            position: absolute; top: 0; left: 0; height: 100%; width: 50%;
+            background: var(--orange); animation: loadProgress 1s infinite linear;
+        }
+
+        #back-to-top {
+            position: fixed; bottom: 33.33vh; right: 20px;
+            width: 45px; height: 45px; background: rgba(45, 55, 72, 0.8);
+            color: var(--orange); border: 1px solid var(--border-color); border-radius: 4px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; font-weight: bold; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        #back-to-top.visible { opacity: 0.8; pointer-events: auto; }
+        #back-to-top:hover { opacity: 1; transform: scale(1.1); background: var(--orange); color: black; }
     </style>
 </head>
 <body>
-    <div class="version-indicator">V8.1 // FINAL</div>
+    <div class="version-indicator">V9.5 // FINAL-OPTIMIZED</div>
     
+    <!-- 语言切换遮罩 -->
+    <div id="languageLoader">
+        <div class="loader-text">SYSTEM RELOAD...</div>
+        <div class="loader-bar"><div class="loader-progress"></div></div>
+    </div>
+
     <div class="container">
+        <!-- 头部区域 -->
         <div class="header">
             <div><h1 id="welcomeTitle"></h1><span id="welcomeUser" class="user-tag"></span></div>
-            <button id="logoutBtn" class="btn btn-logout"></button>
+            <div class="header-actions">
+                <div id="lang-switcher" class="lang-switcher">
+                    <span class="lang-option" data-lang="zh">中</span>
+                    <span class="lang-option" data-lang="en">EN</span>
+                    <div class="glider"></div>
+                </div>
+                <button id="logoutBtn" class="btn btn-logout"></button>
+            </div>
         </div>
 
+        <!-- 操作控制栏 -->
         <div class="controls">
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="">
@@ -140,8 +274,10 @@
             <button id="addWeaponBtn" class="btn btn-add"></button>
         </div>
 
+        <!-- 武器数据表格 -->
         <div id="gridContainer" class="grid-container">
             <div id="tableHeader" class="grid-header">
+                <!-- 列标题，data-sort 用于排序逻辑 -->
                 <div class="header-cell" data-sort="name"><span data-t="colName"></span> <div class="sort-arrows"><div class="arrow arrow-up"></div><div class="arrow arrow-down"></div></div></div>
                 <div class="header-cell" data-sort="damage"><span data-t="colDmg"></span> <div class="sort-arrows"><div class="arrow arrow-up"></div><div class="arrow arrow-down"></div></div></div>
                 <div class="header-cell" data-sort="firing_mode"><span data-t="colMode"></span> <div class="sort-arrows"><div class="arrow arrow-up"></div><div class="arrow arrow-down"></div></div></div>
@@ -153,72 +289,139 @@
         </div>
     </div>
 
+    <!-- 添加/编辑 弹窗 -->
     <div id="weaponModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2 id="modalTitle"></h2>
-            <form id="weaponForm">
+            <form id="weaponForm" novalidate>
                 <input type="hidden" id="originalName">
-                <div class="form-row"><label data-t-label="name"></label><input type="text" id="name" required></div>
-                <div class="form-row"><label data-t-label="dmg"></label><input type="number" id="damage" required></div>
+                <div class="form-row">
+                    <label data-t-label="name"></label>
+                    <input type="text" id="name" required>
+                    <div class="pubg-tooltip">NAME REQUIRED</div>
+                </div>
+                <div class="form-row">
+                    <label data-t-label="dmg"></label>
+                    <input type="number" id="damage" required min="0">
+                    <div class="pubg-tooltip">NUMERIC ONLY</div>
+                </div>
                 <div class="form-row">
                     <label data-t-label="mode"></label>
-                    <div id="firingModeCheckboxes" class="checkbox-group">
-                        <label><input type="checkbox" name="firing_mode" value="single"> Single</label>
-                        <label><input type="checkbox" name="firing_mode" value="burst"> Burst</label>
-                        <label><input type="checkbox" name="firing_mode" value="auto"> Auto</label>
+                    <div id="firingModeSelector" class="tag-selector">
+                        <div class="tag-option single" data-mode="single"></div>
+                        <div class="tag-option auto" data-mode="auto"></div>
                     </div>
                 </div>
-                <div class="form-row"><label data-t-label="cap"></label><input type="number" id="capacity" required></div>
-                <div class="form-row"><label data-t-label="mags"></label><input type="number" id="mag_count" required></div>
-                <div class="form-row"><label data-t-label="ammo"></label><input type="number" id="ammo_in_mag" required></div>
+                <div class="form-row">
+                    <label data-t-label="cap"></label>
+                    <input type="number" id="capacity" required min="1">
+                    <div class="pubg-tooltip">INVALID CAPACITY</div>
+                </div>
+                <div class="form-row">
+                    <label data-t-label="mags"></label>
+                    <input type="number" id="mag_count" required min="0">
+                    <div class="pubg-tooltip">NUMERIC ONLY</div>
+                </div>
+                <div class="form-row">
+                    <label data-t-label="ammo"></label>
+                    <input type="number" id="ammo_in_mag" required min="0">
+                    <div class="pubg-tooltip">NUMERIC ONLY</div>
+                </div>
                 <button type="submit" id="btnSave" class="btn btn-save"></button>
             </form>
         </div>
     </div>
 
+    <!-- 确认操作弹窗 -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <p id="confirmText"></p>
+            <div class="confirm-actions">
+                <button id="btnConfirmDelete" class="btn btn-confirm"></button>
+                <button id="btnCancelDelete" class="btn btn-cancel"></button>
+            </div>
+        </div>
+    </div>
+
+    <button id="back-to-top">⬆</button>
+
     <script>
+        // --- 国际化资源 ---
         const i18n = {
             'zh': {
                 title: '武器库', op: '操作员', logout: '退出登录', search: '搜索武器...', add: '+ 部署武器',
                 colName: '名称', colDmg: '伤害', colMode: '开火模式', colCap: '弹容', colMags: '弹夹数', colAmmo: '枪内子弹', colAct: '操作',
                 modalAdd: '部署新武器', modalEdit: '修改配置',
                 labels: { name: '武器名称', dmg: '基础伤害', mode: '开火模式', cap: '弹夹容量', mags: '备用弹夹数', ammo: '枪内当前子弹' },
-                btnSave: '保存配置', btnEdit: '编辑', btnDel: '删除', confirmDel: '确认销毁武器：'
+                modes: { single: '单点', auto: '连射' },
+                btnSave: '保存配置', btnEdit: '编辑', btnDel: '删除', confirmDel: '确认销毁武器：', confirmLogout: '确认退出登录？',
+                btnConfirm: '确认', btnCancel: '取消',
+                errors: { required: '此项必填', number: '仅限数字', loading: '系统重载中...' }
             },
             'en': {
                 title: 'ARMORY', op: 'OPERATOR', logout: 'LOGOUT', search: 'SEARCH WEAPON...', add: '+ DEPLOY WEAPON',
                 colName: 'NAME', colDmg: 'DAMAGE', colMode: 'FIRING MODE', colCap: 'CAPACITY', colMags: 'MAGS', colAmmo: 'AMMO IN GUN', colAct: 'ACTIONS',
                 modalAdd: 'DEPLOY NEW WEAPON', modalEdit: 'MODIFY CONFIG',
                 labels: { name: 'WEAPON NAME', dmg: 'BASE DAMAGE', mode: 'FIRING MODE', cap: 'MAG CAPACITY', mags: 'MAG COUNT', ammo: 'AMMO IN MAG' },
-                btnSave: 'SAVE CONFIGURATION', btnEdit: 'EDIT', btnDel: 'DELETE', confirmDel: 'CONFIRM DECOMMISSION: '
+                modes: { single: 'Single', auto: 'Auto' },
+                btnSave: 'SAVE CONFIGURATION', btnEdit: 'EDIT', btnDel: 'DELETE', confirmDel: 'CONFIRM DECOMMISSION: ', confirmLogout: 'CONFIRM LOGOUT?',
+                btnConfirm: 'CONFIRM', btnCancel: 'CANCEL',
+                errors: { required: 'REQUIRED', number: 'NUMERIC ONLY', loading: 'SYSTEM RELOAD...' }
             }
         };
 
-        const userLang = navigator.language.startsWith('zh') ? 'zh' : 'en';
-        const t = i18n[userLang];
-
         document.addEventListener('DOMContentLoaded', () => {
+            // 获取用户语言偏好，默认英文（更国际化）或浏览器语言
+            let currentLang = localStorage.getItem('lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+            let t = i18n[currentLang];
+            
+            // 登录校验
             const currentUser = localStorage.getItem('loggedInUser');
             if (!currentUser) { window.location.href = '/login'; return; }
+            
+            // DOM 元素引用
+            const langSwitcher = document.getElementById('lang-switcher');
+            const langLoader = document.getElementById('languageLoader');
+            const loaderText = langLoader.querySelector('.loader-text');
+            const gridContainer = document.getElementById('gridContainer');
+            const searchInput = document.getElementById('searchInput');
+            const weaponModal = document.getElementById('weaponModal');
+            const confirmModal = document.getElementById('confirmModal');
+            const backToTopBtn = document.getElementById('back-to-top');
 
-            // --- I18n Translation ---
-            document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t[el.dataset.t]; });
-            document.querySelectorAll('[data-t-label]').forEach(el => { el.textContent = t.labels[el.dataset.tLabel]; });
-            document.getElementById('welcomeTitle').textContent = t.title;
-            document.getElementById('welcomeUser').textContent = `${t.op}: ${currentUser}`;
-            document.getElementById('logoutBtn').textContent = t.logout;
-            document.getElementById('searchInput').placeholder = t.search;
-            document.getElementById('addWeaponBtn').textContent = t.add;
-            document.getElementById('btnSave').textContent = t.btnSave;
+            // --- 核心函数：应用多语言 ---
+            const applyTranslations = () => {
+                t = i18n[currentLang];
+                // 更新切换器样式
+                langSwitcher.classList.remove('zh', 'en');
+                langSwitcher.classList.add(currentLang);
+                document.querySelectorAll('.lang-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.lang === currentLang);
+                });
 
+                // 更新静态文本
+                document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t[el.dataset.t]; });
+                document.querySelectorAll('[data-t-label]').forEach(el => { el.textContent = t.labels[el.dataset.tLabel]; });
+                document.getElementById('welcomeTitle').textContent = t.title;
+                document.getElementById('welcomeUser').textContent = `${t.op}: ${currentUser}`;
+                document.getElementById('logoutBtn').textContent = t.logout;
+                document.getElementById('searchInput').placeholder = t.search;
+                document.getElementById('addWeaponBtn').textContent = t.add;
+                document.getElementById('btnSave').textContent = t.btnSave;
+                document.querySelectorAll('.tag-option').forEach(tag => { tag.textContent = t.modes[tag.dataset.mode]; });
+                document.getElementById('btnConfirmDelete').textContent = t.btnConfirm;
+                document.getElementById('btnCancelDelete').textContent = t.btnCancel;
+                
+                // 刷新表格以应用表头和内容
+                renderTable();
+            };
+            
+            // 数据存储
             let weapons = [];
             let currentSort = { key: 'name', direction: 'asc' };
 
-            const gridContainer = document.getElementById('gridContainer');
-            const searchInput = document.getElementById('searchInput');
-            const modal = document.getElementById('weaponModal');
-            
+            // --- 数据获取 ---
             const fetchWeapons = async () => {
                 try {
                     const response = await fetch('/api/weapons', { headers: { 'X-Username': currentUser }});
@@ -228,15 +431,19 @@
                 } catch (error) { console.error(error); }
             };
 
+            // 渲染开火模式标签
             const renderFiringModes = (modeString) => {
                 if (!modeString || typeof modeString !== 'string') return '';
                 const modes = modeString.replace(/[{}]/g, '').split(',').map(m => m.trim().toLowerCase());
-                return modes.map(mode => `<span class="mode-tag ${mode}">${mode}</span>`).join(' ');
+                return modes.map(mode => {
+                    if (!mode) return '';
+                    return `<span class="mode-tag ${mode}">${t.modes[mode] || mode}</span>`
+                }).join(' ');
             };
 
+            // --- 表格渲染 ---
             const renderTable = () => {
                 let displayWeapons = [...weapons].filter(w => w.name.toLowerCase().includes(searchInput.value.toLowerCase()));
-
                 displayWeapons.sort((a, b) => {
                     const valA = a[currentSort.key]; const valB = b[currentSort.key];
                     if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
@@ -244,10 +451,12 @@
                     return 0;
                 });
                 
+                // 更新排序图标
                 document.querySelectorAll('.header-cell').forEach(c => c.classList.remove('asc', 'desc'));
                 const activeHeader = document.querySelector(`.header-cell[data-sort="${currentSort.key}"]`);
                 if(activeHeader) activeHeader.classList.add(currentSort.direction);
 
+                // 清空旧行
                 gridContainer.querySelectorAll('.grid-row').forEach(row => row.remove());
 
                 const fragment = document.createDocumentFragment();
@@ -256,7 +465,7 @@
                     row.className = 'grid-row';
                     row.innerHTML = `
                         <div class="grid-cell" data-label="name"><div class="cell-content"><strong>${weapon.name}</strong></div></div>
-                        <div class="grid-cell" data-mobile-label="${t.colDmg}"><div class="cell-content"><span>${weapon.damage}</span><div class="stat-bar"><div class="stat-fill" style="width: ${weapon.damage}%"></div></div></div></div>
+                        <div class="grid-cell" data-mobile-label="${t.colDmg}"><div class="cell-content"><span>${weapon.damage}</span><div class="stat-bar"><div class="stat-fill" style="width: ${Math.min(weapon.damage, 100)}%"></div></div></div></div>
                         <div class="grid-cell" data-mobile-label="${t.colMode}"><div class="cell-content firing-mode-tags">${renderFiringModes(weapon.firing_mode)}</div></div>
                         <div class="grid-cell" data-mobile-label="${t.colCap}"><div class="cell-content">${weapon.capacity}</div></div>
                         <div class="grid-cell" data-mobile-label="${t.colMags}"><div class="cell-content">${weapon.mag_count}</div></div>
@@ -271,42 +480,134 @@
                 gridContainer.appendChild(fragment);
             };
 
-            const openModal = (mode, weapon = null) => {
-                document.getElementById('weaponForm').reset();
-                document.getElementById('modalTitle').textContent = mode === 'add' ? t.modalAdd : t.modalEdit;
-                document.getElementById('originalName').value = weapon ? weapon.name : '';
-                
-                // Reset checkboxes
-                document.querySelectorAll('#firingModeCheckboxes input').forEach(cb => cb.checked = false);
+            // --- 弹窗逻辑 ---
+            const openModal = (modal, data = null) => {
+                if (modal === weaponModal) {
+                    const weapon = data;
+                    document.getElementById('weaponForm').reset();
+                    document.getElementById('modalTitle').textContent = weapon ? t.modalEdit : t.modalAdd;
+                    document.getElementById('originalName').value = weapon ? weapon.name : '';
+                    document.querySelectorAll('.tag-option').forEach(tag => tag.classList.remove('active'));
+                    // 清除之前的验证状态
+                    document.querySelectorAll('#weaponForm input').forEach(input => hideError(input));
 
-                if (weapon) {
-                    document.getElementById('name').value = weapon.name;
-                    document.getElementById('damage').value = weapon.damage;
-                    document.getElementById('capacity').value = weapon.capacity;
-                    document.getElementById('mag_count').value = weapon.mag_count;
-                    document.getElementById('ammo_in_mag').value = weapon.ammo_in_mag;
-                    
-                    // Set checkboxes based on firing_mode string
-                    if (weapon.firing_mode) {
-                        const modes = weapon.firing_mode.replace(/[{}]/g, '').split(',').map(m => m.trim().toLowerCase());
-                        modes.forEach(mode => {
-                            const cb = document.querySelector(`#firingModeCheckboxes input[value="${mode}"]`);
-                            if (cb) cb.checked = true;
-                        });
+                    if (weapon) {
+                        document.getElementById('name').value = weapon.name;
+                        document.getElementById('damage').value = weapon.damage;
+                        document.getElementById('capacity').value = weapon.capacity;
+                        document.getElementById('mag_count').value = weapon.mag_count;
+                        document.getElementById('ammo_in_mag').value = weapon.ammo_in_mag;
+                        if (weapon.firing_mode) {
+                            weapon.firing_mode.replace(/[{}]/g, '').split(',').forEach(m => {
+                                const tag = document.querySelector(`.tag-option[data-mode="${m.trim().toLowerCase()}"]`);
+                                if (tag) tag.classList.add('active');
+                            });
+                        }
                     }
+                } else if (modal === confirmModal) {
+                    document.getElementById('confirmText').textContent = data.text;
                 }
                 modal.style.display = 'block';
             };
 
-            searchInput.addEventListener('input', renderTable);
-            document.getElementById('addWeaponBtn').addEventListener('click', () => openModal('add'));
-            document.querySelector('.close').addEventListener('click', () => modal.style.display = 'none');
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                localStorage.removeItem('loggedInUser');
-                window.location.href = '/login';
-            });
-            window.addEventListener('click', e => { if (e.target == modal) modal.style.display = 'none'; });
+            const closeModal = (modal) => modal.style.display = 'none';
 
+            // --- 验证逻辑 (优化版) ---
+            const showError = (input, msg) => {
+                input.classList.add('error');
+                const tooltip = input.parentElement.querySelector('.pubg-tooltip');
+                if (tooltip) {
+                    tooltip.textContent = msg || (input.type === 'number' ? t.errors.number : t.errors.required);
+                    tooltip.classList.add('visible');
+                    // 2秒后自动隐藏提示，避免遮挡
+                    setTimeout(() => {
+                        if (document.activeElement !== input) tooltip.classList.remove('visible');
+                    }, 2000);
+                }
+            };
+
+            const hideError = (input) => {
+                input.classList.remove('error');
+                const tooltip = input.parentElement.querySelector('.pubg-tooltip');
+                if (tooltip) tooltip.classList.remove('visible');
+            };
+
+            const validateInput = (input) => {
+                if (!input.checkValidity()) {
+                    showError(input);
+                    return false;
+                }
+                hideError(input);
+                return true;
+            };
+
+            // --- 输入监听 ---
+            document.querySelectorAll('#weaponForm input').forEach(input => {
+                input.addEventListener('input', () => validateInput(input));
+                input.addEventListener('blur', () => hideError(input));
+                
+                // 针对数字输入框的即时非法字符拦截
+                if (input.type === 'number') {
+                    input.addEventListener('keydown', (e) => {
+                        // 允许的键：数字、删除、退格、箭头、Tab
+                        const isControl = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(e.key);
+                        const isNumber = /^[0-9]$/.test(e.key);
+                        
+                        if (!isNumber && !isControl) {
+                            e.preventDefault(); // 阻止输入
+                            showError(input, t.errors.number); // 立即显示提示
+                        }
+                    });
+                }
+            });
+
+            // --- 事件监听器绑定 ---
+            document.getElementById('addWeaponBtn').addEventListener('click', () => openModal(weaponModal));
+            
+            // 登出逻辑
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                openModal(confirmModal, { text: t.confirmLogout });
+                document.getElementById('btnConfirmDelete').onclick = () => {
+                    localStorage.removeItem('loggedInUser');
+                    window.location.href = '/login';
+                };
+            });
+
+            // 搜索
+            searchInput.addEventListener('input', renderTable);
+            
+            // 语言切换 (修复逻辑)
+            langSwitcher.addEventListener('click', () => {
+                const targetLang = currentLang === 'zh' ? 'en' : 'zh';
+                
+                // 1. 获取目标语言的加载提示文本
+                const targetLoadingText = i18n[targetLang].errors.loading;
+                
+                // 2. 显示遮罩
+                loaderText.textContent = targetLoadingText; 
+                langLoader.classList.add('active');
+                
+                // 3. 延迟执行切换，展示加载动画
+                setTimeout(() => {
+                    currentLang = targetLang;
+                    localStorage.setItem('lang', currentLang);
+                    applyTranslations();
+                    
+                    // 4. 隐藏遮罩
+                    setTimeout(() => {
+                        langLoader.classList.remove('active');
+                    }, 500);
+                }, 400);
+            });
+            
+            // 弹窗关闭
+            [weaponModal, confirmModal].forEach(modal => {
+                modal.querySelector('.close')?.addEventListener('click', () => closeModal(modal));
+                modal.querySelector('.btn-cancel')?.addEventListener('click', () => closeModal(modal));
+            });
+            window.addEventListener('click', e => { if (e.target === weaponModal || e.target === confirmModal) closeModal(e.target); });
+
+            // 排序点击
             document.getElementById('tableHeader').addEventListener('click', e => {
                 const headerCell = e.target.closest('.header-cell');
                 if (headerCell && headerCell.dataset.sort) {
@@ -316,23 +617,33 @@
                 }
             });
 
+            // 开火模式选择
+            document.getElementById('firingModeSelector').addEventListener('click', e => {
+                if (e.target.classList.contains('tag-option')) {
+                    e.target.classList.toggle('active');
+                }
+            });
+
+            // 表单提交
             document.getElementById('weaponForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const originalName = document.getElementById('originalName').value;
                 
-                // Get selected firing modes from checkboxes
-                const selectedModes = Array.from(document.querySelectorAll('#firingModeCheckboxes input:checked')).map(cb => cb.value);
-                const firingModeString = `{${selectedModes.join(', ')}}`;
+                let isValid = true;
+                document.querySelectorAll('#weaponForm input').forEach(input => {
+                    if (!validateInput(input)) isValid = false;
+                });
+                if (!isValid) return;
 
+                const originalName = document.getElementById('originalName').value;
+                const selectedModes = Array.from(document.querySelectorAll('#firingModeSelector .tag-option.active')).map(tag => tag.dataset.mode);
                 const weaponData = {
                     name: document.getElementById('name').value,
                     damage: parseFloat(document.getElementById('damage').value),
-                    firing_mode: firingModeString,
+                    firing_mode: `{${selectedModes.join(', ')}}`,
                     capacity: parseInt(document.getElementById('capacity').value),
                     mag_count: parseInt(document.getElementById('mag_count').value),
                     ammo_in_mag: parseInt(document.getElementById('ammo_in_mag').value)
                 };
-                
                 try {
                     const response = await fetch(originalName ? `/api/weapons/${originalName}` : '/api/weapons', {
                         method: originalName ? 'PUT' : 'POST',
@@ -340,25 +651,41 @@
                         body: JSON.stringify(weaponData)
                     });
                     if (!response.ok) throw new Error('Error');
-                    modal.style.display = 'none';
+                    closeModal(weaponModal);
                     fetchWeapons();
                 } catch (error) { alert(error.message); }
             });
 
+            // 表格操作按钮
             gridContainer.addEventListener('click', async (e) => {
                 const weaponName = e.target.dataset.name;
-                if (e.target.classList.contains('btn-delete')) {
-                    if (confirm(`${t.confirmDel}${weaponName}?`)) {
-                        try {
-                            if ((await fetch(`/api/weapons/${weaponName}`, { method: 'DELETE', headers: { 'X-Username': currentUser }})).ok) fetchWeapons();
-                        } catch (error) { alert(error.message); }
-                    }
-                } else if (e.target.classList.contains('btn-edit')) {
+                if (e.target.classList.contains('btn-edit')) {
                     const weapon = weapons.find(w => w.name === weaponName);
-                    if (weapon) openModal('edit', weapon);
+                    if (weapon) openModal(weaponModal, weapon);
+                } else if (e.target.classList.contains('btn-delete')) {
+                    openModal(confirmModal, { text: `${t.confirmDel} " ${weaponName} "?` });
+                    document.getElementById('btnConfirmDelete').onclick = async () => {
+                        try {
+                            const response = await fetch(`/api/weapons/${weaponName}`, { method: 'DELETE', headers: { 'X-Username': currentUser }});
+                            if (response.ok) fetchWeapons(); else throw new Error('Delete failed');
+                        } catch (error) { alert(error.message); }
+                        closeModal(confirmModal);
+                    };
                 }
             });
 
+            // 回到顶部按钮逻辑
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 100) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+            backToTopBtn.addEventListener('click', () => window.scrollTo(0, 0));
+
+            // 初始化
+            applyTranslations();
             fetchWeapons();
         });
     </script>

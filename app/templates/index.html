@@ -3,22 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 默认标题，稍后会被 JS 覆盖 -->
     <title>PUBG Armory</title>
     <style>
+        /* --- 基础样式 --- */
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: #0f1014;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             height: 100vh;
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: #f2a900;
+            /* 放射状背景，模拟雷达或深空 */
             background: radial-gradient(circle, #2c3038 0%, #0f1014 100%);
         }
         .loader-container { text-align: center; }
+        
+        /* --- 加载动画圈 --- */
         .spinner {
             width: 50px; height: 50px;
             border: 3px solid rgba(242, 169, 0, 0.3);
@@ -27,10 +28,13 @@
             animation: spin 1s ease-in-out infinite;
             margin: 0 auto 20px;
         }
+        
+        /* --- 文字呼吸效果 --- */
         h2 {
             text-transform: uppercase; letter-spacing: 2px;
             font-size: 1.2rem; animation: pulse 1.5s infinite;
         }
+        
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
@@ -42,16 +46,22 @@
     </div>
 
     <script>
-        // 简单的语言字典
+        // 简单的国际化配置
         const i18n = {
-            'zh': { loading: '正在连接大厅...' },
-            'en': { loading: 'CONNECTING TO LOBBY...' }
+            'zh': { title: '正在连接 - PUBG 武器库', loading: '正在连接大厅...' },
+            'en': { title: 'Connecting - PUBG Armory', loading: 'CONNECTING TO LOBBY...' }
         };
-        // 语言检测
-        const lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
-        document.getElementById('loadingText').textContent = i18n[lang].loading;
 
-        // 逻辑跳转
+        // 优先读取本地存储的语言，否则检测浏览器语言
+        const storedLang = localStorage.getItem('lang');
+        const browserLang = navigator.language.startsWith('zh') ? 'zh' : 'en';
+        const currentLang = storedLang || browserLang;
+
+        // 应用文本和标题
+        document.title = i18n[currentLang].title;
+        document.getElementById('loadingText').textContent = i18n[currentLang].loading;
+
+        // 检查登录状态并跳转
         const loggedInUser = localStorage.getItem('loggedInUser');
         setTimeout(() => {
             window.location.href = loggedInUser ? '/dashboard' : '/login';
