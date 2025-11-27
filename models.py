@@ -46,9 +46,14 @@ class Player:
     """
     代表一个玩家的数据模型类，管理玩家信息和武器。
     """
-    def __init__(self, username: str):
+    def __init__(self, username: str, model_preferences: dict = None):
         self.username = username
         self.weapons = []
+        self.model_preferences = model_preferences if model_preferences is not None else {
+            "weapon": "default",
+            "distance": "default",
+            "direction": "default"
+        }
 
     def add_weapon(self, weapon: Weapon):
         self.weapons.append(weapon)
@@ -71,12 +76,16 @@ class Player:
     def to_dict(self):
         return {
             "username": self.username,
-            "weapons": [weapon.to_dict() for weapon in self.weapons]
+            "weapons": [weapon.to_dict() for weapon in self.weapons],
+            "model_preferences": self.model_preferences
         }
     
     @staticmethod
     def from_dict(data: dict):
-        player = Player(username=data.get('username'))
+        player = Player(
+            username=data.get('username'),
+            model_preferences=data.get('model_preferences')
+        )
         if 'weapons' in data:
             for weapon_data in data['weapons']:
                 player.add_weapon(Weapon.from_dict(weapon_data))

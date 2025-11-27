@@ -8,3 +8,4 @@ model_strategy.md
 p1.md
 sound_recognition_strategy.md
 trained_models
+test_inference.py
