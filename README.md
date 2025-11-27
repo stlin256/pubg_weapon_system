@@ -35,11 +35,11 @@
 ![模型总准确率对比](reports/figures/overall_accuracy_grouped_zh.png)
 
 ### 网页界面
-![武器管理系统截图](webpage.png)
+![武器管理系统截图](imgs/webpage.png)
 
-![声音识别截图](webpage3.png)
+![声音识别截图](imgs/webpage3.png)
 
-![控制台截图](webpage2.png)
+![控制台截图](imgs/webpage2.png)
 ---
 
 ## 🛠️ 环境设置
