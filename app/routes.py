@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template
+from flask import Blueprint, jsonify, request, render_template, current_app
 import os
 import pandas as pd
 import time
@@ -42,17 +42,27 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def get_version():
+    try:
+        with open('version.txt', 'r') as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return "DEV"
+
+def render_template_with_version(template_name, **context):
+    return render_template(template_name, version=get_version(), **context)
+
 @main_bp.route("/")
 def index():
-    return render_template("index.html")
+    return render_template_with_version("index.html")
 
 @main_bp.route("/login")
 def login_page():
-    return render_template("login.html")
+    return render_template_with_version("login.html")
 
 @main_bp.route("/register")
 def register_page():
-    return render_template("register.html")
+    return render_template_with_version("register.html")
 
 @main_bp.route("/api/register", methods=['POST'])
 def register():
@@ -97,12 +107,12 @@ def login():
 
 @main_bp.route("/dashboard")
 def dashboard_page():
-    return render_template("dashboard.html")
+    return render_template_with_version("dashboard.html")
 
 @main_bp.route("/admin")
 def admin_page():
     # 这里可以添加一个简单的 session 检查，确保只有管理员能访问
-    return render_template("admin.html")
+    return render_template_with_version("admin.html")
 
 @main_bp.route("/api/weapons", methods=['GET'])
 def get_weapons():

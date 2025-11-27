@@ -216,7 +216,16 @@
         .tag-option.active.single { background-color: rgba(66, 153, 225, 0.2); color: #63b3ed; border-color: #4299e1; }
         .tag-option.active.auto { background-color: rgba(237, 100, 166, 0.2); color: #ed64a6; border-color: #d53f8c; }
         .btn-save { width: 100%; padding: 1rem; background: var(--orange); color: black; font-weight: bold; margin-top: 1rem; }
-        .version-indicator { position: fixed; bottom: 20px; right: 20px; font-family: 'Roboto Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.3); pointer-events: none; }
+        .version-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+            pointer-events: none;
+            z-index: 1001;
+        }
         
         #confirmModal .modal-content { max-width: 400px; text-align: center; }
         #confirmText { font-family: 'Oswald', sans-serif; color: var(--text-main); margin-bottom: 1.5rem; font-size: 1.2rem; text-transform: uppercase; }
@@ -311,7 +320,7 @@
     </style>
 </head>
 <body>
-    <div class="version-indicator">V9.5 // FINAL-OPTIMIZED</div>
+    <div class="version-indicator">{{ version }}</div>
     
     <!-- 语言切换遮罩 -->
     <div id="languageLoader">
