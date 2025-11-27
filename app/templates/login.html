@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - PUBG Armory</title>
     <!-- 引入战术风格字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <style>
         /* --- 变量定义 --- */
         :root { --pubg-orange: #f2a900; --pubg-dark: #0f1014; --text-grey: #b7b7b7; }
@@ -13,7 +13,7 @@
         body {
             font-family: 'Roboto', sans-serif;
             display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
-            background: linear-gradient(rgba(15, 16, 20, 0.8), rgba(15, 16, 20, 0.9)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background: linear-gradient(rgba(15, 16, 20, 0.8), rgba(15, 16, 20, 0.9)), url("{{ url_for('static', filename='img/login-bg.jpg') }}");
             background-size: cover; background-position: center; color: white;
             position: relative; /* 为绝对定位的语言切换器提供参照 */
         }

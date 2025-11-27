@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - PUBG Armory</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <style>
         /* --- 变量定义 (绿色主题) --- */
         :root { --pubg-green: #4cd137; --pubg-dark: #0f1014; --text-grey: #b7b7b7; }
@@ -12,7 +12,7 @@
         body {
             font-family: 'Roboto', sans-serif;
             display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
-            background: linear-gradient(rgba(15, 16, 20, 0.85), rgba(15, 16, 20, 0.95)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background: linear-gradient(rgba(15, 16, 20, 0.85), rgba(15, 16, 20, 0.95)), url("{{ url_for('static', filename='img/login-bg.jpg') }}");
             background-size: cover; background-position: center; color: white;
             position: relative;
         }
