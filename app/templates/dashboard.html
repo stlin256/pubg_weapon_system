@@ -564,6 +564,7 @@
             let benchmarkData = [];
             let benchmarkChart = null;
             let currentMetric = 'accuracy';
+            let sortedData = [];
 
 
             // --- 导航切换逻辑 ---
@@ -900,7 +901,7 @@
                 };
                 
                 const sortOrder = ['weapon', 'distance', 'direction'];
-                const sortedData = [...benchmarkData].sort((a, b) => {
+                sortedData = [...benchmarkData].sort((a, b) => {
                     return sortOrder.indexOf(a.target) - sortOrder.indexOf(b.target);
                 });
 
@@ -924,6 +925,35 @@
                         scales: {
                             y: { beginAtZero: true, max: 1.0, ticks: { color: 'white' } },
                             x: { ticks: { color: 'white', autoSkip: false, maxRotation: 90, minRotation: 45 } }
+                        },
+                        onClick: (event, elements) => {
+                            if (elements.length > 0) {
+                                const elementIndex = elements[0].index;
+                                const clickedModelData = sortedData[elementIndex];
+                                if (!clickedModelData) return;
+
+                                const { model, target } = clickedModelData;
+                                const selectElement = document.getElementById(`${target}_model_select`);
+                                
+                                if (selectElement && selectElement.value !== model) {
+                                    selectElement.value = model;
+                                    handleModelChange(selectElement);
+                                    
+                                    const selectedModels = {
+                                        weapon: weaponSelect.value,
+                                        distance: distanceSelect.value,
+                                        direction: directionSelect.value
+                                    };
+                                    
+                                    benchmarkChart.data.datasets[0].borderColor = sortedData.map(d => (d.model === selectedModels[d.target]) ? highlightColor : 'rgba(0,0,0,0)');
+                                    benchmarkChart.data.datasets[0].borderWidth = sortedData.map(d => (d.model === selectedModels[d.target]) ? 3 : 1);
+                                    benchmarkChart.update('none');
+                                }
+                            }
+                        },
+                        onHover: (event, chartElement) => {
+                            const canvas = event.native.target;
+                            canvas.style.cursor = chartElement[0] ? 'pointer' : 'default';
                         }
                     }
                 });
@@ -989,30 +1019,33 @@
             // --- 枪声识别模块事件监听 ---
 
             // 保存模型偏好
+            const handleModelChange = async (changedSelectElement) => {
+                const preferences = {
+                    weapon: weaponSelect.value,
+                    distance: distanceSelect.value,
+                    direction: directionSelect.value
+                };
+                try {
+                    await fetch('/api/preferences', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-Username': currentUser },
+                        body: JSON.stringify(preferences)
+                    });
+                    const modelToPreload = changedSelectElement.value;
+                    await fetch('/api/preload_model', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-Username': currentUser },
+                        body: JSON.stringify({ model_name: modelToPreload })
+                    });
+                } catch (error) {
+                    console.error('Failed to save preferences or preload model:', error);
+                }
+            };
+            
             [weaponSelect, distanceSelect, directionSelect].forEach(select => {
                 select.addEventListener('change', async () => {
-                    const preferences = {
-                        weapon: weaponSelect.value,
-                        distance: distanceSelect.value,
-                        direction: directionSelect.value
-                    };
-                    try {
-                        await fetch('/api/preferences', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'X-Username': currentUser },
-                            body: JSON.stringify(preferences)
-                        });
-                        renderBenchmarkChart(); // 重新渲染图表以更新高亮
-
-                        // 主动预加载模型
-                        const modelToPreload = select.value;
-                        await fetch('/api/preload_model', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'X-Username': currentUser },
-                            body: JSON.stringify({ model_name: modelToPreload })
-                        });
-
-                    } catch (error) { console.error('Failed to save preferences or preload model:', error); }
+                    await handleModelChange(select);
+                    renderBenchmarkChart();
                 });
             });
 
