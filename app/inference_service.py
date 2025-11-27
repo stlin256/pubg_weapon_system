@@ -15,11 +15,48 @@ MODEL_SAVE_PATH = os.path.join(BASE_DIR, 'trained_models')
 MAX_PADDING_LENGTH = 174 # From feature_extractor.py
 SAMPLING_RATE = 16000 # From config.py
 
+import json
+
 class InferenceService:
     def __init__(self):
         self._model_cache = {}
+        self.strategy_file = 'cache_strategy.json'
+        self.cache_strategy = self._load_strategy()
         self._available_models = self._scan_models()
         self._label_encoders = self._load_label_encoders()
+        if self.cache_strategy == 'all':
+            self.preload_all_models()
+
+    def _load_strategy(self):
+        if os.path.exists(self.strategy_file):
+            with open(self.strategy_file, 'r') as f:
+                return json.load(f).get('strategy', 'all')
+        return 'all'
+
+    def _save_strategy(self):
+        with open(self.strategy_file, 'w') as f:
+            json.dump({'strategy': self.cache_strategy}, f)
+
+    def set_cache_strategy(self, strategy):
+        if strategy in ['all', 'selected']:
+            self.cache_strategy = strategy
+            self._save_strategy()
+            if strategy == 'all':
+                self.preload_all_models()
+            else:
+                self._model_cache.clear()
+        return self.cache_strategy
+
+    def preload_model(self, model_name):
+        """主动加载单个模型到缓存。"""
+        if model_name not in self._model_cache:
+            self._load_model(model_name)
+    
+    def preload_all_models(self):
+        """预加载所有发现的模型。"""
+        for target in self._available_models:
+            for model_name in self._available_models[target]:
+                self.preload_model(model_name)
 
     def _scan_models(self):
         """扫描模型目录，按任务对模型进行分类。"""
@@ -95,7 +132,7 @@ class InferenceService:
             passt_model.eval()
             model = passt_model
             
-        if model:
+        if model and self.cache_strategy == 'all':
             self._model_cache[model_name] = model
         return model
 

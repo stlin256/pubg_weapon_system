@@ -63,6 +63,23 @@ class UserService:
             users[security_service.encrypt(u)] = security_service.encrypt(p)
             self._write_users_unlocked(users)
         return True
+
+    def delete_user_by_username(self, u: str) -> bool:
+        """根据用户名查找并删除一个用户。"""
+        with self.lock:
+            users = self._read_users_unlocked()
+            user_key_to_delete = None
+            for eu in users.keys():
+                if security_service.decrypt(eu) == u:
+                    user_key_to_delete = eu
+                    break
+            
+            if user_key_to_delete:
+                del users[user_key_to_delete]
+                self._write_users_unlocked(users)
+                return True
+        return False
+
 user_service = UserService()
 
 # ==============================================================================

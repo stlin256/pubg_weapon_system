@@ -7,6 +7,7 @@ import warnings
 from werkzeug.utils import secure_filename
 from .services import user_service, weapon_service, security_service
 from app.inference_service import inference_service
+from app.admin_service import admin_service
 
 # --- 配置结构化日志 ---
 log_formatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(message)s')
@@ -23,8 +24,23 @@ stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(log_formatter)
 logger.addHandler(stream_handler)
 from models import Player, Weapon
+from functools import wraps
 
 main_bp = Blueprint('main', __name__)
+admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
+
+# --- 管理员身份验证装饰器 ---
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # 简单实现：检查 session 或请求头中的管理员标志
+        # 在实际生产中，这里应该使用更安全的 token 验证机制
+        username = request.headers.get('X-Username')
+        password = request.headers.get('X-Password')
+        if not admin_service.is_admin(username, password):
+            return jsonify({"status": "error", "message": "管理员权限不足"}), 403
+        return f(*args, **kwargs)
+    return decorated_function
 
 @main_bp.route("/")
 def index():
@@ -55,11 +71,26 @@ def login():
         return jsonify({"status": "error", "message": "请求缺少用户名或密码"}), 400
     username = data['username']
     password = data['password']
+
+    # 首先，检查是否为管理员
+    if admin_service.is_admin(username, password):
+        return jsonify({
+            "status": "success",
+            "message": "管理员登录成功",
+            "redirect": "/admin",
+            "is_admin": True
+        })
+
+    # 如果不是管理员，执行普通用户登录流程
     users = user_service._read_users_unlocked()
     for enc_user, enc_pass in users.items():
         if security_service.decrypt(enc_user) == username:
             if security_service.decrypt(enc_pass) == password:
-                return jsonify({"status": "success", "message": "登录成功", "redirect": "/dashboard"})
+                return jsonify({
+                    "status": "success",
+                    "message": "登录成功",
+                    "redirect": "/dashboard"
+                })
             else:
                 return jsonify({"status": "error", "message": "密码错误"}), 401
     return jsonify({"status": "error", "message": "用户不存在"}), 404
@@ -67,6 +98,11 @@ def login():
 @main_bp.route("/dashboard")
 def dashboard_page():
     return render_template("dashboard.html")
+
+@main_bp.route("/admin")
+def admin_page():
+    # 这里可以添加一个简单的 session 检查，确保只有管理员能访问
+    return render_template("admin.html")
 
 @main_bp.route("/api/weapons", methods=['GET'])
 def get_weapons():
@@ -212,3 +248,89 @@ def recognize_sound():
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
+
+# ==============================================================================
+# 管理员 API
+# ==============================================================================
+@admin_bp.route('/stats', methods=['GET'])
+@admin_required
+def get_stats():
+    # 简单的统计实现
+    num_users = len(user_service._read_users_unlocked())
+    log_file = 'app.log'
+    num_predictions = 0
+    if os.path.exists(log_file):
+        with open(log_file, 'r') as f:
+            num_predictions = sum(1 for line in f if 'Recognition SUCCESS' in line)
+    
+    return jsonify({
+        "num_users": num_users,
+        "num_predictions": num_predictions,
+        "cache_size": len(inference_service._model_cache)
+    })
+
+@admin_bp.route('/users', methods=['GET'])
+@admin_required
+def get_users():
+    users_encrypted = user_service._read_users_unlocked()
+    users_decrypted = [security_service.decrypt(u) for u in users_encrypted.keys()]
+    return jsonify(users_decrypted)
+
+@admin_bp.route('/logs', methods=['GET'])
+@admin_required
+def get_logs():
+    log_file = 'app.log'
+    if os.path.exists(log_file):
+        with open(log_file, 'r') as f:
+            # 读取最后 100 行
+            lines = f.readlines()
+            return jsonify(lines[-100:])
+    return jsonify([])
+
+@admin_bp.route('/users/<username>', methods=['DELETE'])
+@admin_required
+def delete_user_by_admin(username):
+    # 此处需要一个新服务函数来通过用户名删除用户
+    if user_service.delete_user_by_username(username):
+        # 同时删除该用户的武器数据文件
+        player_data_path = weapon_service.get_pdp(username)
+        if os.path.exists(player_data_path):
+            os.remove(player_data_path)
+        return jsonify({"status": "success", "message": f"用户 {username} 已被删除"})
+    return jsonify({"status": "error", "message": "用户未找到"}), 404
+
+@admin_bp.route('/clear_cache', methods=['POST'])
+@admin_required
+def clear_cache():
+    inference_service._model_cache.clear()
+    return jsonify({"status": "success", "message": "模型缓存已清空"})
+
+@admin_bp.route('/cache_strategy', methods=['GET', 'POST'])
+@admin_required
+def handle_cache_strategy():
+    if request.method == 'GET':
+        return jsonify({"strategy": inference_service.cache_strategy})
+    
+    if request.method == 'POST':
+        strategy = request.json.get('strategy')
+        if not strategy or strategy not in ['all', 'selected']:
+            return jsonify({"status": "error", "message": "无效的策略"}), 400
+        
+        current_strategy = inference_service.set_cache_strategy(strategy)
+        return jsonify({"status": "success", "strategy": current_strategy, "message": f"缓存策略已设置为 '{current_strategy}'"})
+
+@main_bp.route('/api/preload_model', methods=['POST'])
+def preload_model():
+    """为普通用户提供的主动加载模型的接口。"""
+    username = request.headers.get('X-Username')
+    if not username: return jsonify({"status": "error", "message": "缺少用户身份认证信息"}), 401
+    
+    model_name = request.json.get('model_name')
+    if not model_name:
+        return jsonify({"status": "error", "message": "缺少模型名称"}), 400
+
+    try:
+        inference_service.preload_model(model_name)
+        return jsonify({"status": "success", "message": f"模型 {model_name} 已预加载"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500

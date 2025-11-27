@@ -899,14 +899,19 @@
                     direction: directionSelect.value
                 };
                 
+                const sortOrder = ['weapon', 'distance', 'direction'];
+                const sortedData = [...benchmarkData].sort((a, b) => {
+                    return sortOrder.indexOf(a.target) - sortOrder.indexOf(b.target);
+                });
+
                 const chartData = {
-                    labels: benchmarkData.map(d => d.model),
+                    labels: sortedData.map(d => d.model),
                     datasets: [{
                         label: t.rec[currentMetric === 'accuracy' ? 'acc' : 'f1'],
-                        data: benchmarkData.map(d => d[currentMetric]),
-                        backgroundColor: benchmarkData.map(d => targetColors[d.target] || 'rgba(200, 200, 200, 0.6)'),
-                        borderColor: benchmarkData.map(d => (d.model === selectedModels[d.target]) ? highlightColor : 'rgba(0,0,0,0)'),
-                        borderWidth: benchmarkData.map(d => (d.model === selectedModels[d.target]) ? 3 : 1)
+                        data: sortedData.map(d => d[currentMetric]),
+                        backgroundColor: sortedData.map(d => targetColors[d.target] || 'rgba(200, 200, 200, 0.6)'),
+                        borderColor: sortedData.map(d => (d.model === selectedModels[d.target]) ? highlightColor : 'rgba(0,0,0,0)'),
+                        borderWidth: sortedData.map(d => (d.model === selectedModels[d.target]) ? 3 : 1)
                     }]
                 };
 
@@ -998,7 +1003,16 @@
                             body: JSON.stringify(preferences)
                         });
                         renderBenchmarkChart(); // 重新渲染图表以更新高亮
-                    } catch (error) { console.error('Failed to save preferences:', error); }
+
+                        // 主动预加载模型
+                        const modelToPreload = select.value;
+                        await fetch('/api/preload_model', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-Username': currentUser },
+                            body: JSON.stringify({ model_name: modelToPreload })
+                        });
+
+                    } catch (error) { console.error('Failed to save preferences or preload model:', error); }
                 });
             });
 

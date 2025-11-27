@@ -214,7 +214,14 @@
                 if (response.ok && result.redirect) {
                     messageDiv.textContent = t.msgs.success;
                     messageDiv.className = 'message success';
-                    localStorage.setItem('loggedInUser', username);
+                    
+                    if (result.is_admin) {
+                        localStorage.setItem('adminUser', username);
+                        localStorage.setItem('adminPass', password); // 注意：仅用于此应用的演示目的
+                    } else {
+                        localStorage.setItem('loggedInUser', username);
+                    }
+                    
                     setTimeout(() => { window.location.href = result.redirect; }, 1000);
                 } else {
                     messageDiv.textContent = result.message || t.msgs.fail;

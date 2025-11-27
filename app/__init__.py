@@ -8,6 +8,7 @@ def create_app():
     with app.app_context():
         from . import routes
         app.register_blueprint(routes.main_bp)
+        app.register_blueprint(routes.admin_bp)
 
     @app.after_request
     def add_header(response):
