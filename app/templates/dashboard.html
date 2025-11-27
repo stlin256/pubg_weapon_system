@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <!-- 引入 Chart.js -->
     <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+    <!-- 引入独立的 SVG 资源文件 -->
+    <script src="{{ url_for('static', filename='js/weapon-icons.js') }}"></script>
+
     <style>
         /* --- 全局变量定义 --- */
         :root {
@@ -17,10 +20,12 @@
         }
 
         /* --- 动画定义 --- */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         @keyframes loadProgress { 0% { left: -50%; } 100% { left: 100%; } }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes expandWidth { from { width: 0; opacity: 0; } to { opacity: 1; } }
 
         /* --- 基础样式 --- */
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
@@ -44,49 +49,18 @@
         .header-actions { display: flex; align-items: center; gap: 1rem; }
         
         /* --- 主导航菜单 --- */
-        .main-nav {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--border-color);
-        }
+        .main-nav { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); }
         .nav-tab {
-            font-family: 'Oswald', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 0.8rem 1.5rem;
-            cursor: pointer;
-            position: relative;
-            color: var(--text-muted);
-            transition: color 0.3s;
+            font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px;
+            padding: 0.8rem 1.5rem; cursor: pointer; position: relative; color: var(--text-muted); transition: color 0.3s;
         }
-        .nav-tab.active {
-            color: var(--orange);
-        }
+        .nav-tab.active { color: var(--orange); }
         .nav-tab::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--orange);
-            transform: scaleX(0);
-            transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px;
+            background: var(--orange); transform: scaleX(0); transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
         }
-        .nav-tab.active::after {
-            transform: scaleX(1);
-        }
-        @media (max-width: 600px) {
-            .main-nav {
-                gap: 0.5rem;
-            }
-            .nav-tab {
-                padding: 0.8rem 1rem;
-                font-size: 0.9rem;
-            }
-        }
-
+        .nav-tab.active::after { transform: scaleX(1); }
+        @media (max-width: 600px) { .main-nav { gap: 0.5rem; } .nav-tab { padding: 0.8rem 1rem; font-size: 0.9rem; } }
 
         /* --- 按钮样式 --- */
         .btn {
@@ -137,7 +111,7 @@
             .header-cell:hover { color: var(--orange); }
         }
 
-        /* --- 可视化组件 --- */
+        /* --- 可视化组件 (Stat Bar) --- */
         .stat-bar { width: 60px; height: 4px; background: #333; margin-left: 10px; display: inline-block; border-radius: 2px; overflow: hidden; vertical-align: middle; }
         .stat-fill { height: 100%; background: var(--orange); box-shadow: 0 0 5px var(--orange); }
         .sort-arrows { display: flex; flex-direction: column; margin-left: 8px; gap: 2px; }
@@ -150,7 +124,7 @@
         .mode-tag.single { border-color: #4299e1; color: #63b3ed; background-color: rgba(66, 153, 225, 0.1); }
         .mode-tag.auto { border-color: #d53f8c; color: #ed64a6; background-color: rgba(237, 100, 166, 0.1); }
 
-        /* --- 移动端响应式 --- */
+        /* --- 移动端响应式 (表格) --- */
         @media (max-width: 900px) {
             .grid-container { display: block; background: transparent; border: none; }
             .grid-header { display: none; }
@@ -178,54 +152,21 @@
         .form-row label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
         .form-row input[type="text"], .form-row input[type="number"] { width: 100%; padding: 0.8rem; background: #0f1014; border: 1px solid var(--border-color); color: white; font-family: 'Roboto Mono', monospace; box-sizing: border-box; transition: border-color 0.3s; }
         .form-row input:focus { outline: none; border-color: var(--orange); }
-        
-        /* --- 验证提示样式 (优化版) --- */
         .form-row input.error { border-color: var(--danger); animation: shake 0.3s ease-in-out; }
         .pubg-tooltip {
-            position: absolute; 
-            top: 100%; /* 显示在下方 */
-            right: 0; 
-            margin-top: 8px; /* 下方间距 */
-            background-color: rgba(232, 65, 24, 0.9); 
-            color: white;
-            padding: 4px 8px; 
-            font-size: 0.75rem; 
-            font-family: 'Oswald', sans-serif; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-            border-radius: 2px; 
-            border: 1px solid var(--danger);
-            pointer-events: none; 
-            opacity: 0; 
-            transform: translateY(-5px); 
-            transition: all 0.2s; 
-            z-index: 10;
+            position: absolute; top: 100%; right: 0; margin-top: 8px; background-color: rgba(232, 65, 24, 0.9); color: white;
+            padding: 4px 8px; font-size: 0.75rem; font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px;
+            border-radius: 2px; border: 1px solid var(--danger); pointer-events: none; opacity: 0; transform: translateY(-5px); transition: all 0.2s; z-index: 10;
         }
         .pubg-tooltip.visible { opacity: 1; transform: translateY(0); }
-        /* 气泡小箭头 (向上指) */
-        .pubg-tooltip::after {
-            content: ''; position: absolute; 
-            bottom: 100%; /* 在气泡上方 */
-            right: 10px;
-            border-width: 5px; border-style: solid;
-            border-color: transparent transparent var(--danger) transparent; /* 红色三角形向上 */
-        }
+        .pubg-tooltip::after { content: ''; position: absolute; bottom: 100%; right: 10px; border-width: 5px; border-style: solid; border-color: transparent transparent var(--danger) transparent; }
 
         .tag-selector { display: flex; gap: 10px; padding: 0.8rem; background: #0f1014; border-radius: 4px; border: 1px solid var(--border-color); min-height: 23px; align-items: center;}
         .tag-option { padding: 3px 10px; font-size: 0.9em; border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 4px; cursor: pointer; transition: all 0.2s; user-select: none; }
         .tag-option.active.single { background-color: rgba(66, 153, 225, 0.2); color: #63b3ed; border-color: #4299e1; }
         .tag-option.active.auto { background-color: rgba(237, 100, 166, 0.2); color: #ed64a6; border-color: #d53f8c; }
         .btn-save { width: 100%; padding: 1rem; background: var(--orange); color: black; font-weight: bold; margin-top: 1rem; }
-        .version-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 12px;
-            color: rgba(255,255,255,0.3);
-            pointer-events: none;
-            z-index: 1001;
-        }
+        .version-indicator { position: fixed; bottom: 20px; right: 20px; font-family: 'Roboto Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.3); pointer-events: none; z-index: 1001; }
         
         #confirmModal .modal-content { max-width: 400px; text-align: center; }
         #confirmText { font-family: 'Oswald', sans-serif; color: var(--text-main); margin-bottom: 1.5rem; font-size: 1.2rem; text-transform: uppercase; }
@@ -233,72 +174,42 @@
         .btn-confirm { background-color: var(--danger); color: white; }
         .btn-cancel { background-color: #4a5568; color: white; }
 
-        /* --- 语言切换器 (优化版) --- */
+        /* --- 语言切换器 --- */
         .lang-switcher {
-            position: relative; display: flex; align-items: center;
-            width: 80px; height: 28px;
-            border-radius: 4px; cursor: pointer;
-            font-family: 'Oswald', sans-serif; overflow: hidden;
-            transition: all 0.2s;
-            filter: grayscale(100%); /* 默认黑白灰 */
-            opacity: 0.7;
+            position: relative; display: flex; align-items: center; width: 80px; height: 28px;
+            border-radius: 4px; cursor: pointer; font-family: 'Oswald', sans-serif; overflow: hidden;
+            transition: all 0.2s; filter: grayscale(100%); opacity: 0.7;
         }
-        
-        /* 鼠标悬停时恢复色彩和高亮 */
-        @media (hover: hover) { 
-            .lang-switcher:hover { 
-                transform: scale(1.05); 
-                filter: grayscale(0%); 
-                opacity: 1;
-            } 
-        }
-
+        @media (hover: hover) { .lang-switcher:hover { transform: scale(1.05); filter: grayscale(0%); opacity: 1; } }
         .lang-switcher span { flex: 1; text-align: center; z-index: 2; transition: color 0.4s; font-size: 0.9em; }
         .lang-switcher .lang-option { color: var(--text-muted); }
         .lang-switcher .active { color: #fff; }
-        
         .lang-switcher .glider {
-            position: absolute; top: 0; left: 0;
-            width: 50%; height: 100%; z-index: 1;
-            clip-path: polygon(15% 0, 100% 0, 85% 100%, 0% 100%);
-            transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+            position: absolute; top: 0; left: 0; width: 50%; height: 100%; z-index: 1;
+            clip-path: polygon(15% 0, 100% 0, 85% 100%, 0% 100%); transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
         }
         .lang-switcher.zh .glider { background: var(--lang-zh-color); box-shadow: 0 0 10px var(--lang-zh-color); transform: translateX(0); }
         .lang-switcher.en .glider { background: var(--lang-en-color); box-shadow: 0 0 10px var(--lang-en-color); transform: translateX(100%); }
 
-        /* --- 语言切换加载遮罩 --- */
         #languageLoader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #0f1014; z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0f1014; z-index: 9999;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
         #languageLoader.active { opacity: 1; pointer-events: auto; }
-        .loader-text {
-            font-family: 'Oswald', sans-serif; color: var(--orange);
-            font-size: 1.5rem; letter-spacing: 3px;
-            animation: blink 0.8s infinite;
-        }
-        .loader-bar {
-            width: 200px; height: 2px; background: #333; margin-top: 15px; position: relative; overflow: hidden;
-        }
-        .loader-progress {
-            position: absolute; top: 0; left: 0; height: 100%; width: 50%;
-            background: var(--orange); animation: loadProgress 1s infinite linear;
-        }
+        .loader-text { font-family: 'Oswald', sans-serif; color: var(--orange); font-size: 1.5rem; letter-spacing: 3px; animation: blink 0.8s infinite; }
+        .loader-bar { width: 200px; height: 2px; background: #333; margin-top: 15px; position: relative; overflow: hidden; }
+        .loader-progress { position: absolute; top: 0; left: 0; height: 100%; width: 50%; background: var(--orange); animation: loadProgress 1s infinite linear; }
 
         #back-to-top {
-            position: fixed; bottom: 33.33vh; right: 20px;
-            width: 45px; height: 45px; background: rgba(45, 55, 72, 0.8);
+            position: fixed; bottom: 33.33vh; right: 20px; width: 45px; height: 45px; background: rgba(45, 55, 72, 0.8);
             color: var(--orange); border: 1px solid var(--border-color); border-radius: 4px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem; font-weight: bold; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s, transform 0.3s;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s;
         }
         #back-to-top.visible { opacity: 0.8; pointer-events: auto; }
         #back-to-top:hover { opacity: 1; transform: scale(1.1); background: var(--orange); color: black; }
         
-        /* --- 枪声识别模块专属样式 --- */
+        /* --- 枪声识别模块样式 --- */
         .rec-section { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 2rem; }
         .rec-section-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.75rem; }
         .rec-section-header h2 { font-family: 'Oswald', sans-serif; margin: 0; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; color: var(--orange); }
@@ -310,13 +221,105 @@
         .upload-area.dragover { border-color: var(--orange); background-color: rgba(242, 169, 0, 0.1); }
         .upload-icon { font-size: 3rem; color: var(--orange); }
         .upload-text { margin-top: 1rem; color: var(--text-muted); }
+        
+        /* 结果网格容器 */
         .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
-        .result-card { background: #0f1014; border: 1px solid var(--border-color); padding: 1.5rem; text-align: center; border-radius: 4px; }
-        .result-card h3 { margin: 0 0 0.5rem 0; font-family: 'Oswald', sans-serif; color: var(--text-muted); text-transform: uppercase; }
-        .result-card p { margin: 0; font-family: 'Roboto Mono', monospace; font-size: 1.5rem; color: var(--orange); min-height: 2rem; }
+        @media (max-width: 900px) { .results-grid { grid-template-columns: 1fr; } }
+        
+        /* --- 结果卡片通用 --- */
+        .result-card {
+            background: #0f1014; border: 1px solid var(--border-color);
+            padding: 1.5rem; text-align: center; border-radius: 4px;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .result-card h3 { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 1rem 0; font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+        .result-text { font-family: 'Roboto Mono', monospace; font-size: 1.2rem; color: var(--orange); margin: 0.5rem 0 0 0; min-height: 1.5em;}
+
+        /* --- 1. 武器可视化 (优化版) --- */
+        .weapon-visual-wrapper {
+            height: 100px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(20, 20, 20, 0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 4px; position: relative; overflow: hidden;
+        }
+        .weapon-svg {
+            width: 70%; height: 70%;
+            fill: transparent; stroke: var(--orange); stroke-width: 2;
+            stroke-linejoin: round; stroke-linecap: round;
+            filter: drop-shadow(0 0 5px rgba(242, 169, 0, 0.3));
+            opacity: 0.3; transition: all 0.5s;
+        }
+        .weapon-svg.active { opacity: 1; transform: scale(1.05); filter: drop-shadow(0 0 10px rgba(242, 169, 0, 0.6)); }
+
+        /* --- 2. 距离测距仪 (Dynamic Range Finder) --- */
+        .range-visual-wrapper {
+            height: 60px; display: flex; align-items: center; justify-content: center;
+            width: 100%; position: relative;
+        }
+        
+        /* 动态展开的容器 */
+        .range-dynamic-indicator {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 0px; /* 默认0宽度 */
+            height: 20px;
+            transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); /* 有弹性的展开动画 */
+            color: var(--orange); font-family: 'Oswald', sans-serif;
+            overflow: visible; position: relative; white-space: nowrap;
+        }
+        
+        /* 中间连接线 */
+        .range-line { flex-grow: 1; height: 2px; background: var(--orange); margin: 0 5px; box-shadow: 0 0 5px var(--orange); }
+        .range-arrow { font-size: 1.2rem; font-weight: bold; line-height: 1; }
+        
+        /* 0米时的点样式 */
+        .range-dynamic-indicator.zero-dist { width: 10px !important; justify-content: center; }
+        .range-dynamic-indicator.zero-dist .range-line, 
+        .range-dynamic-indicator.zero-dist .range-arrow { display: none; }
+        .range-dynamic-indicator.zero-dist::after {
+            content: ''; width: 8px; height: 8px; background: var(--orange); border-radius: 50%;
+            box-shadow: 0 0 8px var(--orange); animation: pulse 1s infinite;
+        }
+
+        /* --- 3. 声源雷达 (Radar Rose - HUD Style) --- */
+        .radar-wrapper {
+            height: 120px; display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+        .radar-svg { width: 100px; height: 100px; transform: rotate(0deg); overflow: visible; }
+        
+        /* 修复：中心缩放偏离问题 */
+        .radar-center {
+            fill: rgba(255, 255, 255, 0.05); stroke: var(--border-color); stroke-width: 1;
+            transition: all 0.3s;
+            transform-box: fill-box; transform-origin: center; /* 关键修复 */
+        }
+        
+        .radar-sector { fill: rgba(255, 255, 255, 0.05); stroke: var(--border-color); stroke-width: 1; transition: all 0.3s; }
+        
+        /* 激活状态 */
+        .radar-sector.active { fill: rgba(242, 169, 0, 0.8); stroke: #fff; filter: drop-shadow(0 0 8px var(--orange)); }
+        .radar-center.active { fill: var(--danger); stroke: #fff; filter: drop-shadow(0 0 8px var(--danger)); animation: pulse 0.6s infinite; }
+        
+        /* 优化后的标签样式 (HUD风格) */
+        .radar-labels span {
+            display: none; /* <--- 添加这一行即可隐藏 L N R S */
+            position: absolute; color: var(--text-muted); font-family: 'Roboto Mono', monospace;
+            font-size: 0.7rem; opacity: 0.5; font-weight: bold; pointer-events: none;
+            transition: all 0.3s;
+        }
+        .radar-labels span.active-label { color: var(--orange); opacity: 1; text-shadow: 0 0 5px var(--orange); }
+        
+        .rl-n { top: 5px; left: 50%; transform: translateX(-50%); }
+        .rl-s { bottom: 5px; left: 50%; transform: translateX(-50%); }
+        .rl-w { left: 5px; top: 50%; transform: translateY(-50%); }
+        .rl-e { right: 5px; top: 50%; transform: translateY(-50%); }
+
         .chart-controls { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem; }
         .chart-toggle-btn { background: var(--panel-bg); color: var(--text-muted); border: 1px solid var(--border-color); }
         .chart-toggle-btn.active { background: var(--orange); color: black; border-color: var(--orange); }
+        .fade-in-on-scroll { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .fade-in-on-scroll.visible { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body>
@@ -361,7 +364,6 @@
             <!-- 武器数据表格 -->
             <div id="gridContainer" class="grid-container">
                 <div id="tableHeader" class="grid-header">
-                    <!-- 列标题 -->
                     <div class="header-cell" data-sort="name"><span data-t="colName"></span> <div class="sort-arrows"><div class="arrow arrow-up"></div><div class="arrow arrow-down"></div></div></div>
                     <div class="header-cell" data-sort="damage"><span data-t="colDmg"></span> <div class="sort-arrows"><div class="arrow arrow-up"></div><div class="arrow arrow-down"></div></div></div>
                     <div class="header-cell" data-sort="firing_mode"><span data-t="colMode"></span> <div class="sort-arrows"><div class="arrow arrow-up"></div><div class="arrow arrow-down"></div></div></div>
@@ -407,24 +409,66 @@
                         <div class="upload-icon">🎵</div>
                         <div class="upload-text">拖拽音频文件至此，或点击选择</div>
                     </div>
+                    
+                    <!-- 结果展示区域 (可视化版) -->
                     <div id="results-grid" class="results-grid">
+                        <!-- 1. 武器类型卡片 -->
                         <div class="result-card">
                             <h3>武器类型</h3>
-                            <p id="result-weapon">-</p>
+                            <div id="weapon-visual-container" class="weapon-visual-wrapper">
+                                <!-- 默认空状态 SVG -->
+                                <svg class="weapon-svg" viewBox="0 0 100 60">
+                                    <path d="M40 30 L60 30 M50 20 L50 40" stroke-dasharray="2,2"/>
+                                    <circle cx="50" cy="30" r="15" stroke-dasharray="2,2" stroke-opacity="0.5"/>
+                                </svg>
+                            </div>
+                            <p id="result-weapon" class="result-text">-</p>
                         </div>
+
+                        <!-- 2. 开火距离卡片 (Dynamic Range) -->
                         <div class="result-card">
                             <h3>开火距离</h3>
-                            <p id="result-distance">-</p>
+                            <div class="range-visual-wrapper">
+                                <!-- 这是一个动态宽度容器 -->
+                                <div id="range-indicator" class="range-dynamic-indicator zero-dist">
+                                    <span class="range-arrow">|&lt;</span>
+                                    <div class="range-line"></div>
+                                    <span class="range-arrow">&gt;|</span>
+                                </div>
+                            </div>
+                            <p id="result-distance" class="result-text">-</p>
                         </div>
+
+                        <!-- 3. 声源方向卡片 (HUD Radar) -->
                         <div class="result-card">
                             <h3>声源方向</h3>
-                            <p id="result-direction">-</p>
+                            <div class="radar-wrapper">
+                                <div class="radar-labels">
+                                    <span class="rl-n" id="lbl-front">N</span>
+                                    <span class="rl-s" id="lbl-back">S</span>
+                                    <span class="rl-w" id="lbl-left">L</span>
+                                    <span class="rl-e" id="lbl-right">R</span>
+                                </div>
+                                <svg class="radar-svg" viewBox="0 0 100 100">
+                                    <!-- 扇区：前 -->
+                                    <path id="radar-front" class="radar-sector" d="M50 50 L15 15 A 50 50 0 0 1 85 15 Z" />
+                                    <!-- 扇区：右 -->
+                                    <path id="radar-right" class="radar-sector" d="M50 50 L85 15 A 50 50 0 0 1 85 85 Z" />
+                                    <!-- 扇区：后 -->
+                                    <path id="radar-back" class="radar-sector" d="M50 50 L85 85 A 50 50 0 0 1 15 85 Z" />
+                                    <!-- 扇区：左 -->
+                                    <path id="radar-left" class="radar-sector" d="M50 50 L15 85 A 50 50 0 0 1 15 15 Z" />
+                                    <!-- 中心：Center -->
+                                    <circle id="radar-center" class="radar-center" cx="50" cy="50" r="12" />
+                                </svg>
+                            </div>
+                            <p id="result-direction" class="result-text">-</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="rec-section">
+            <div class="rec-section fade-in-on-scroll">
                 <div class="rec-section-header">
                     <h2>模型性能参考 (Benchmark)</h2>
                 </div>
@@ -497,6 +541,12 @@
     <button id="back-to-top">⬆</button>
 
     <script>
+        // --- 容错处理：如果外部 SVG JS 加载失败，提供默认值 ---
+        if (typeof WEAPON_ICONS_LIB === 'undefined') {
+            console.warn('Weapon Icons Library not loaded. Using fallback.');
+            var WEAPON_ICONS_LIB = { none: '<path d="M10 30 L20 20 L30 40 L40 10 L50 50 L60 20 L70 40 L80 30 L90 30" style="fill:none; stroke-dasharray: 2,2;" />' };
+        }
+
         // --- 国际化资源 ---
         const i18n = {
             'zh': {
@@ -568,7 +618,6 @@
             const benchmarkChartCanvas = document.getElementById('benchmark-chart');
             const chartControls = document.querySelector('.chart-controls');
             
-            // --- 枪声识别模块数据存储 ---
             let availableModels = {};
             let benchmarkData = [];
             let benchmarkChart = null;
@@ -580,12 +629,8 @@
             mainNav.addEventListener('click', (e) => {
                 if (e.target.classList.contains('nav-tab')) {
                     const targetTab = e.target.dataset.tab;
-
-                    // 更新 Tab 激活状态
                     mainNav.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
                     e.target.classList.add('active');
-
-                    // 切换面板显示
                     document.querySelectorAll('.panel-content').forEach(panel => {
                         panel.style.display = panel.id === `${targetTab}-panel` ? 'block' : 'none';
                     });
@@ -595,21 +640,16 @@
             // --- 核心函数：应用多语言 ---
             const applyTranslations = () => {
                 t = i18n[currentLang];
-                // 更新切换器样式
                 langSwitcher.classList.remove('zh', 'en');
                 langSwitcher.classList.add(currentLang);
                 document.querySelectorAll('.lang-option').forEach(opt => {
                     opt.classList.toggle('active', opt.dataset.lang === currentLang);
                 });
 
-                // 更新导航菜单
                 document.querySelector('.nav-tab[data-tab="armory"]').textContent = t.navArmory;
                 document.querySelector('.nav-tab[data-tab="recognition"]').textContent = t.navRecognition;
-
-                // 更新静态文本
                 document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t[el.dataset.t]; });
                 
-                // --- 新增：枪声识别模块的国际化 ---
                 const recPanel = document.getElementById('recognition-panel');
                 recPanel.querySelector('h2').textContent = t.rec.prefs;
                 recPanel.querySelector('label[for="weapon_model_select"]').textContent = t.rec.weapon;
@@ -634,7 +674,6 @@
                 document.getElementById('btnConfirmDelete').textContent = t.btnConfirm;
                 document.getElementById('btnCancelDelete').textContent = t.btnCancel;
                 
-                // 刷新表格以应用表头和内容
                 renderTable();
             };
             
@@ -652,7 +691,6 @@
                 } catch (error) { console.error(error); }
             };
 
-            // 渲染开火模式标签
             const renderFiringModes = (modeString) => {
                 if (!modeString || typeof modeString !== 'string') return '';
                 const modes = modeString.replace(/[{}]/g, '').split(',').map(m => m.trim().toLowerCase());
@@ -672,12 +710,10 @@
                     return 0;
                 });
                 
-                // 更新排序图标
                 document.querySelectorAll('.header-cell').forEach(c => c.classList.remove('asc', 'desc'));
                 const activeHeader = document.querySelector(`.header-cell[data-sort="${currentSort.key}"]`);
                 if(activeHeader) activeHeader.classList.add(currentSort.direction);
 
-                // 清空旧行
                 gridContainer.querySelectorAll('.grid-row').forEach(row => row.remove());
 
                 const fragment = document.createDocumentFragment();
@@ -893,26 +929,104 @@
                 });
             };
 
+            // 类别映射 (使用独立的 WEAPON_ICONS_LIB)
+            const getWeaponSVG = (label) => {
+                const l = label ? label.toLowerCase() : 'nogun';
+                const typeMap = {
+                    'ak': 'ar', 'aug': 'ar', 'g36c': 'ar', 'gro': 'ar', 'k2': 'ar', 'm4': 'ar', 'm16': 'ar', 'qbz': 'ar', 'scar': 'ar', 'verl': 'ar',
+                    'awm': 'sr', 'kar': 'sr', 'm24': 'sr', 'win': 'sr', 'mini': 'sr', 'mk': 'sr', 'qbu': 'sr', 'sks': 'sr', 'slr': 'sr', 'vss': 'sr',
+                    'pp': 'smg', 'p90': 'smg', 'tomy': 'smg', 'ump': 'smg', 'uzi': 'smg', 'vec': 'smg',
+                    'dbs': 'sg', 'pump': 'sg', 's12k': 'sg',
+                    'dp': 'lmg', 'm249': 'lmg',
+                    'deagle': 'hg', 'p18c': 'hg', 'p92': 'hg', 'p1911': 'hg', 'r45': 'hg', 'r1895': 'hg'
+                };
+                return WEAPON_ICONS_LIB[typeMap[l]] || WEAPON_ICONS_LIB.none;
+            };
+
+            // --- 核心可视化更新逻辑 ---
+            const updateVisuals = (data) => {
+                // 1. 更新武器 SVG
+                const visualContainer = document.getElementById('weapon-visual-container');
+                const svgPath = getWeaponSVG(data.weapon);
+                visualContainer.innerHTML = `<svg class="weapon-svg active" viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet">${svgPath}</svg>`;
+
+                // 2. 更新距离测距仪 (Dynamic Range)
+                const rangeIndicator = document.getElementById('range-indicator');
+                
+                // 解析距离数字，最大射程设置为 600m
+                let distValue = 0;
+                let widthPercent = 0;
+                
+                if (data.distance) {
+                    const match = data.distance.toString().match(/(\d+)/);
+                    if (match) {
+                        distValue = parseInt(match[1]);
+            
+                        // --- 核心修改开始 ---
+                        // 逻辑说明：
+                        // 我们不从 0% 开始增长，而是从 15% 开始增长。
+                        // 算法：基础宽度 15% + (剩余的 85% 空间 * 距离比例)
+                        // 效果：
+                        // 10m  -> 15% + 1.4% = 16.4% (能看见线)
+                        // 50m  -> 15% + 7.0% = 22.0% (比10m长)
+                        // 100m -> 15% + 14.1% = 29.1% (比50m明显更长)
+                        
+                        if (distValue > 0) {
+                            // 限制最大为 100%
+                            let percentage = 15 + (distValue / 600) * 85;
+                            widthPercent = Math.min(percentage, 100);
+                        } else {
+                            widthPercent = 0; // 0米依然归零变成圆点
+                        }
+                        // --- 核心修改结束 ---
+                    } else if (data.distance === 'close') {
+                        widthPercent = 20;
+                    } else if (data.distance === 'far') {
+                        widthPercent = 90;
+                    }
+                }
+
+                // 处理 0m (显示为点) vs >0m (显示为展开条)
+                if (distValue === 0) {
+                    rangeIndicator.classList.add('zero-dist');
+                    rangeIndicator.style.width = ''; // 重置宽度以便 CSS 控制点的大小
+                } else {
+                    rangeIndicator.classList.remove('zero-dist');
+                    rangeIndicator.style.width = `${widthPercent}%`;
+                }
+
+                // 3. 更新声源雷达
+                document.querySelectorAll('.radar-sector, .radar-center').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.radar-labels span').forEach(el => el.classList.remove('active-label'));
+                
+                const dir = data.direction ? data.direction.toLowerCase() : '';
+                let activeId = '';
+                let activeLabelId = '';
+                
+                if (dir.includes('front')) { activeId = 'radar-front'; activeLabelId = 'lbl-front'; }
+                else if (dir.includes('back')) { activeId = 'radar-back'; activeLabelId = 'lbl-back'; }
+                else if (dir.includes('left')) { activeId = 'radar-left'; activeLabelId = 'lbl-left'; }
+                else if (dir.includes('right')) { activeId = 'radar-right'; activeLabelId = 'lbl-right'; }
+                else if (dir.includes('center')) { activeId = 'radar-center'; }
+
+                if (activeId) document.getElementById(activeId).classList.add('active');
+                if (activeLabelId) document.getElementById(activeLabelId).classList.add('active-label');
+            };
+
             const renderBenchmarkChart = () => {
                 if (benchmarkChart) benchmarkChart.destroy();
 
                 const targetColors = {
-                    weapon: 'rgba(236, 100, 166, 0.6)', // Pink
-                    distance: 'rgba(106, 153, 222, 0.6)', // Blue
-                    direction: 'rgba(93, 211, 158, 0.6)' // Green
+                    weapon: 'rgba(236, 100, 166, 0.6)', distance: 'rgba(106, 153, 222, 0.6)', direction: 'rgba(93, 211, 158, 0.6)'
                 };
                 const highlightColor = 'rgba(242, 169, 0, 1)';
 
                 const selectedModels = {
-                    weapon: weaponSelect.value,
-                    distance: distanceSelect.value,
-                    direction: directionSelect.value
+                    weapon: weaponSelect.value, distance: distanceSelect.value, direction: directionSelect.value
                 };
                 
                 const sortOrder = ['weapon', 'distance', 'direction'];
-                sortedData = [...benchmarkData].sort((a, b) => {
-                    return sortOrder.indexOf(a.target) - sortOrder.indexOf(b.target);
-                });
+                sortedData = [...benchmarkData].sort((a, b) => sortOrder.indexOf(a.target) - sortOrder.indexOf(b.target));
 
                 const chartData = {
                     labels: sortedData.map(d => d.model),
@@ -975,7 +1089,6 @@
                         fetch('/api/benchmark'),
                         fetch('/api/weapons', { headers: { 'X-Username': currentUser }})
                     ]);
-                    
                     availableModels = await modelsRes.json();
                     benchmarkData = await benchmarkRes.json();
                     const playerData = await weaponsRes.json();
@@ -984,16 +1097,12 @@
                     populateSelect(weaponSelect, availableModels.weapon, userPreferences.weapon);
                     populateSelect(distanceSelect, availableModels.distance, userPreferences.distance);
                     populateSelect(directionSelect, availableModels.direction, userPreferences.direction);
-                    
                     renderBenchmarkChart();
 
-                } catch (error) {
-                    console.error("Error initializing recognition module:", error);
-                }
+                } catch (error) { console.error("Error initializing recognition module:", error); }
             };
 
             const handleFileUpload = async (file) => {
-                // 更新上传区域文本
                 uploadArea.querySelector('.upload-text').textContent = file.name;
 
                 const formData = new FormData();
@@ -1002,8 +1111,20 @@
                 formData.append('distance_model', distanceSelect.value);
                 formData.append('direction_model', directionSelect.value);
 
-                // 显示加载状态
-                resultWeapon.textContent = resultDistance.textContent = resultDirection.textContent = '...';
+                // UI Reset / Loading State
+                resultWeapon.textContent = 'Analyzing...';
+                resultDistance.textContent = '...';
+                resultDirection.textContent = '...';
+                
+                // Reset visuals
+                document.getElementById('weapon-visual-container').innerHTML = '<div class="loader-bar" style="width:50px; margin:0 auto;"></div>';
+                // Reset range to 0 (point)
+                const rangeInd = document.getElementById('range-indicator');
+                rangeInd.classList.add('zero-dist');
+                rangeInd.style.width = '';
+                
+                document.querySelectorAll('.radar-sector, .radar-center').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.radar-labels span').forEach(el => el.classList.remove('active-label'));
 
                 try {
                     const response = await fetch('/api/recognize', {
@@ -1016,18 +1137,21 @@
                         resultWeapon.textContent = data.results.weapon;
                         resultDistance.textContent = data.results.distance;
                         resultDirection.textContent = data.results.direction;
-                    } else {
-                        throw new Error(data.message);
-                    }
+
+                        // 更新可视化效果
+                        updateVisuals(data.results);
+
+                    } else { throw new Error(data.message); }
                 } catch (error) {
                     console.error('Recognition failed:', error);
-                    resultWeapon.textContent = resultDistance.textContent = resultDirection.textContent = 'Error';
+                    resultWeapon.textContent = 'Error';
+                    resultDistance.textContent = '-';
+                    resultDirection.textContent = '-';
+                    document.getElementById('weapon-visual-container').innerHTML = `<svg class="weapon-svg active" viewBox="0 0 100 60">${WEAPON_ICONS_LIB.none}</svg>`;
                 }
             };
             
             // --- 枪声识别模块事件监听 ---
-
-            // 保存模型偏好
             const handleModelChange = async (changedSelectElement) => {
                 const preferences = {
                     weapon: weaponSelect.value,
@@ -1046,9 +1170,7 @@
                         headers: { 'Content-Type': 'application/json', 'X-Username': currentUser },
                         body: JSON.stringify({ model_name: modelToPreload })
                     });
-                } catch (error) {
-                    console.error('Failed to save preferences or preload model:', error);
-                }
+                } catch (error) { console.error('Failed to save preferences or preload model:', error); }
             };
             
             [weaponSelect, distanceSelect, directionSelect].forEach(select => {
@@ -1058,7 +1180,6 @@
                 });
             });
 
-            // 切换 Benchmark 指标
             chartControls.addEventListener('click', (e) => {
                 if (e.target.classList.contains('chart-toggle-btn')) {
                     currentMetric = e.target.dataset.metric;
@@ -1068,26 +1189,24 @@
                 }
             });
 
-            // 文件上传
             uploadArea.addEventListener('click', () => audioUploadInput.click());
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.classList.add('dragover');
-            });
+            uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
             uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
             uploadArea.addEventListener('drop', (e) => {
                 e.preventDefault();
                 uploadArea.classList.remove('dragover');
                 const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    handleFileUpload(files[0]);
-                }
+                if (files.length > 0) { handleFileUpload(files[0]); }
             });
             audioUploadInput.addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    handleFileUpload(e.target.files[0]);
-                }
+                if (e.target.files.length > 0) { handleFileUpload(e.target.files[0]); }
             });
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in-on-scroll').forEach(el => { observer.observe(el); });
             
             // 初始化
             applyTranslations();
