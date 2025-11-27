@@ -133,16 +133,17 @@ python -m src.sound_recognition.evaluate
 │   ├── __init__.py       # 应用工厂, 注册蓝图
 │   ├── routes.py         # 路由层 (main_bp, admin_bp)
 │   ├── services.py       # 用户与武器业务逻辑
-│   ├── admin_service.py  # (新增) 管理员认证服务
-│   └── inference_service.py # (新增) 模型推理服务
+│   ├── admin_service.py  # 管理员认证服务
+│   └── inference_service.py # 模型推理服务
 ├── data/                 # 持久化数据
 ├── src/                  # 声音识别训练流水线核心代码
 │   └── sound_recognition/
 ├── reports/              # 评估报告与图表
 ├── trained_models/       # 训练好的模型
-├── admin_credentials.txt # (新增) 管理员凭据
-├── cache_strategy.json   # (新增) 缓存策略配置
-├── app.log               # (新增) 应用日志文件
+├── admin_credentials.txt # 管理员凭据
+├── cache_strategy.json   # 缓存策略配置
+├── app.log               # 应用日志文件
 ├── models.py             # 数据模型 (Weapon, Player)
 ├── run.py                # Web应用启动入口
+├── version.txt           # 全局版本号文件
 └── README.md             # 本文档
