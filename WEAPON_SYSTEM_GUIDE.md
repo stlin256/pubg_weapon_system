@@ -10,38 +10,70 @@
 
 ```mermaid
 graph TD
-    subgraph "项目根目录"
-        A[run.py] --> B(app);
-        H[models.py];
-        L[admin_credentials.txt];
-        M[cache_strategy.json];
+    %% Define Styles
+    classDef layerStyle fill:#2d3748,stroke:#1a202c,stroke-width:2px,color:#fff
+    classDef entrypointStyle fill:#4a5568,stroke:#2d3748,stroke-width:2px,color:#fff
+    classDef serviceStyle fill:#2c5282,stroke:#2a4365,stroke-width:2px,color:#fff
+    classDef dataStyle fill:#285e61,stroke:#234e52,stroke-width:2px,color:#fff
+
+    subgraph "用户接口层 (User Interface)"
+        direction LR
+        User["<fa:fa-user> 用户"] -- "HTTP(S) 请求" --> Routes["<fa:fa-route> app/routes.py<br/>(API Endpoints)"]
+    end
+
+    subgraph "应用服务层 (Application Service Layer)"
+        direction TB
+        Routes --> Services;
+        
+        subgraph " "
+            direction LR
+            Services[ ] -.- CoreServices["
+                <b>核心服务</b><br/>
+                - WeaponService<br/>
+                - UserService<br/>
+                - SecurityService<br/>
+                <i>(app/services.py)</i>
+            "]:::serviceStyle
+            
+            Services[ ] -.- InferenceService["
+                <fa:fa-brain> <b>推理服务</b><br/>
+                - InferenceService<br/>
+                <i>(app/inference_service.py)</i>
+            "]:::serviceStyle
+
+            Services[ ] -.- AdminService["
+                <fa:fa-user-shield> <b>管理服务</b><br/>
+                - AdminService<br/>
+                <i>(app/admin_service.py)</i>
+            "]:::serviceStyle
+        end
+    end
+
+    subgraph "数据持久层 (Data Persistence Layer)"
+        direction TB
+        CoreServices -- "读/写" --> EncryptedData["
+            <fa:fa-lock> <b>加密数据</b><br/>
+            - users.dat<br/>
+            - players/*.dat<br/>
+            - secret.key
+        "]:::dataStyle
+        
+        CoreServices -- "读取" --> ArmsData["<fa:fa-table> 初始武器数据<br/>(Arms.xlsx)"]:::dataStyle
+        
+        InferenceService -- "加载" --> TrainedModels["<fa:fa-archive> 训练好的模型<br/>(trained_models/)"]:::dataStyle
+        
+        AdminService -- "读取" --> AdminCreds["<fa:fa-key> 管理员凭据<br/>(admin_credentials.txt)"]:::dataStyle
+    end
+
+    %% Entrypoint
+    subgraph "应用入口"
+        Run["run.py"] -- "调用" --> CreateApp["app/__init__.py<br/>(create_app)"]:::entrypointStyle
+        CreateApp -- "实例化" --> InferenceService
+        CreateApp -- "注册" --> Routes
     end
     
-    subgraph "应用包 (app)"
-        B --> C[__init__.py: create_app()];
-        C -- "注册蓝图" --> D[routes.py];
-        D -- "导入服务" --> E[services.py];
-        D -- "导入服务" --> I[inference_service.py];
-        D -- "导入服务" --> J[admin_service.py];
-        E -- "导入模型" --> H;
-        I -- "导入模型" --> H;
-        J -- "读取凭据" --> L;
-        I -- "读写策略" --> M;
-        C -- "渲染" --> F[templates/];
-    end
-    
-    subgraph "数据层"
-        G[data/];
-        K[secret.key];
-        N[app.log];
-    end
-    
-    style B fill:#2d3748,stroke:#fff
-    style G fill:#1e2126,stroke:#fff
-    style K fill:#1e2126,stroke:#fff
-    style L fill:#1e2126,stroke:#fff
-    style M fill:#1e2126,stroke:#fff
-    style N fill:#1e2126,stroke:#fff
+    %% Style definitions to remove box around the central orchestrator
+    style Services fill:none,stroke:none
 ```
 
 ### 1.2 核心组件职责
@@ -56,8 +88,8 @@ graph TD
     *   **`inference_service.py`**: **核心推理业务逻辑层**。负责动态加载、缓存和执行所有机器学习模型。
     *   **`admin_service.py`**: **管理员认证服务**。负责从 `admin_credentials.txt` 读取凭据并验证管理员身份。
     *   **`templates/`**: **前端视图层**。包含 `dashboard.html` (用户仪表盘) 和 `admin.html` (管理面板)。
-*   **`models.py`**: **数据模型层**。定义了 `Weapon` 和 `Player` 两个核心 Python 类。`Player` 模型现在也包含了 `model_preferences` 字段。
-*   **`admin_credentials.txt`**: 以明文形式存储管理员的用户名和密码。
+*   **`models.py`**: **业务模型层**。定义了 `Weapon` 和 `Player` 两个核心业务逻辑类，主要由 `services.py` 调用以管理玩家状态和武器库，与模型推理服务无直接关系。`Player` 模型现在也包含了 `model_preferences` 字段。
+*   **`admin_credentials.txt`**: 以 `username:password` 格式存储管理员的凭据。
 *   **`cache_strategy.json`**: 以 JSON 格式持久化存储管理员设定的模型缓存策略。
 *   **`app.log`**: 记录所有枪声识别操作的结构化日志文件。
 
@@ -95,3 +127,49 @@ graph TD
 3.  **访问应用**:
     *   **普通用户**: 打开浏览器并访问 `http://127.0.0.1:5000/` 进行注册或登录。
     *   **管理员**: 使用 `admin_credentials.txt` 中定义的凭据在登录页面登录，您将被自动重定向到 `/admin`。
+
+## 4. 界面展示
+
+本节展示了 Web 应用在 PC 端和移动端上的核心界面截图。
+
+### 4.1 PC 端界面
+
+<table width="100%" cellpadding="2">
+    <thead>
+        <tr>
+            <th align="center">用户武器库</th>
+            <th align="center">枪声识别</th>
+            <th align="center">管理面板</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td align="center"><img src="imgs/webpage.png" alt="PC端用户武器库界面" width="100%"></td>
+            <td align="center"><img src="imgs/webpage3.png" alt="PC端枪声识别界面" width="100%"></td>
+            <td align="center"><img src="imgs/webpage2.png" alt="PC端管理面板界面" width="100%"></td>
+        </tr>
+    </tbody>
+</table>
+
+### 4.2 移动端界面
+
+我们同样对移动端进行了响应式布局优化，确保在小屏幕设备上也能获得良好的用户体验。
+
+<table width="100%" cellpadding="2">
+    <thead>
+        <tr>
+            <th align="center">登录</th>
+            <th align="center">武器库</th>
+            <th align="center">枪声识别</th>
+            <th align="center">管理面板</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td align="center"><img src="imgs/webpage_mobile_login.png" alt="移动端登录界面" width="100%"></td>
+            <td align="center"><img src="imgs/webpage_mobile_dashboard.png" alt="移动端武器库界面" width="100%"></td>
+            <td align="center"><img src="imgs/webpage_mobile_dashboard2.png" alt="移动端枪声识别界面" width="100%"></td>
+            <td align="center"><img src="imgs/webpage_mobile_admin.png" alt="移动端管理面板" width="100%"></td>
+        </tr>
+    </tbody>
+</table>

@@ -21,7 +21,7 @@
     *   **传统模型**: 我们实现了高度灵活的`train.py`脚本，支持对RandomForest, KNN, SVM, XGBoost, LightGBM等多种模型进行训练。
     *   **Transformer模型**: 我们利用Hugging Face Transformers库，实现了对两种先进模型的微调：
         *   `train_ast.py`: 微调 **Audio Spectrogram Transformer (AST)** 模型，它直接处理单声道声谱图。
-        *   `train_passt.py`: 微调 **Patch Audio Spectrogram Transformer (PaSST)** 模型，并创新性地改造其以支持**双声道（Stereo）**输入，旨在增强空间（方向）特征的捕捉能力。
+        *   `train_passt.py`: 微调 **Patch Audio Spectrogram Transformer (PaSST)** 模型，并创新性地改造其以支持**双声道**输入，旨在增强空间（方向）特征的捕捉能力。
 
 3.  **综合评估与可视化**:
     *   我们创建了`evaluate.py`脚本，能够自动发现所有训练好的模型，并在统一的测试集上运行评估。
