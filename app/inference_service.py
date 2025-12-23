@@ -44,7 +44,8 @@ class InferenceService:
             if strategy == 'all':
                 self.preload_all_models()
             else:
-                self._model_cache.clear()
+                # 当从 'all' 切换到 'selected' 时，清理缓存
+                self.clear_cache()
         return self.cache_strategy
 
     def preload_model(self, model_name):
@@ -57,6 +58,19 @@ class InferenceService:
         for target in self._available_models:
             for model_name in self._available_models[target]:
                 self.preload_model(model_name)
+    
+    def clear_cache(self):
+        """
+        清空模型缓存，并强制 PyTorch 释放 CUDA 缓存的显存。
+        """
+        import gc
+        # 清空字典
+        self._model_cache.clear()
+        # 强制 Python 进行垃圾回收
+        gc.collect()
+        # 强制 PyTorch 清空 CUDA 缓存
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
     def _scan_models(self):
         """扫描模型目录，按任务对模型进行分类。"""
@@ -132,7 +146,7 @@ class InferenceService:
             passt_model.eval()
             model = passt_model
             
-        if model and self.cache_strategy == 'all':
+        if model:
             self._model_cache[model_name] = model
         return model
 
@@ -182,5 +196,4 @@ class InferenceService:
         
         return encoder.inverse_transform([prediction_idx])[0]
 
-# 创建一个单例
-inference_service = InferenceService()
+# 不再需要全局单例或 get 函数, 实例将在 app/__init__.py 中创建和管理

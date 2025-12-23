@@ -6,7 +6,7 @@ import logging
 import warnings
 from werkzeug.utils import secure_filename
 from .services import user_service, weapon_service, security_service
-from app.inference_service import inference_service
+# inference_service 将通过 current_app 上下文获取
 from app.admin_service import admin_service
 
 # --- 配置结构化日志 ---
@@ -167,7 +167,7 @@ def delete_weapon(weapon_name):
 @main_bp.route("/api/models", methods=['GET'])
 def get_available_models():
    """返回所有可用的模型，按任务分类。"""
-   return jsonify(inference_service.get_available_models())
+   return jsonify(current_app.inference_service.get_available_models())
 
 @main_bp.route("/api/benchmark", methods=['GET'])
 def get_benchmark_data():
@@ -232,7 +232,7 @@ def recognize_sound():
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
             for target, model_name in prefs.items():
-                prediction = inference_service.predict(temp_path, target, model_name)
+                prediction = current_app.inference_service.predict(temp_path, target, model_name)
                 results[target] = prediction
         
         end_time = time.time()
@@ -276,7 +276,7 @@ def get_stats():
     return jsonify({
         "num_users": num_users,
         "num_predictions": num_predictions,
-        "cache_size": len(inference_service._model_cache)
+        "cache_size": len(current_app.inference_service._model_cache)
     })
 
 @admin_bp.route('/users', methods=['GET'])
@@ -312,21 +312,21 @@ def delete_user_by_admin(username):
 @admin_bp.route('/clear_cache', methods=['POST'])
 @admin_required
 def clear_cache():
-    inference_service._model_cache.clear()
+    current_app.inference_service.clear_cache()
     return jsonify({"status": "success", "message": "模型缓存已清空"})
 
 @admin_bp.route('/cache_strategy', methods=['GET', 'POST'])
 @admin_required
 def handle_cache_strategy():
     if request.method == 'GET':
-        return jsonify({"strategy": inference_service.cache_strategy})
+        return jsonify({"strategy": current_app.inference_service.cache_strategy})
     
     if request.method == 'POST':
         strategy = request.json.get('strategy')
         if not strategy or strategy not in ['all', 'selected']:
             return jsonify({"status": "error", "message": "无效的策略"}), 400
         
-        current_strategy = inference_service.set_cache_strategy(strategy)
+        current_strategy = current_app.inference_service.set_cache_strategy(strategy)
         return jsonify({"status": "success", "strategy": current_strategy, "message": f"缓存策略已设置为 '{current_strategy}'"})
 
 @main_bp.route('/api/preload_model', methods=['POST'])
@@ -340,7 +340,7 @@ def preload_model():
         return jsonify({"status": "error", "message": "缺少模型名称"}), 400
 
     try:
-        inference_service.preload_model(model_name)
+        current_app.inference_service.preload_model(model_name)
         return jsonify({"status": "success", "message": f"模型 {model_name} 已预加载"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

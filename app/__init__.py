@@ -1,8 +1,14 @@
 from flask import Flask
+from app.inference_service import InferenceService
 
 def create_app():
 
     app = Flask(__name__, static_folder='static', static_url_path='/static')
+    
+    # --- 解决方案核心 ---
+    # 创建 InferenceService 的应用级单例实例
+    # 这确保了每个 worker process 只有一个实例
+    app.inference_service = InferenceService()
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     
     with app.app_context():
