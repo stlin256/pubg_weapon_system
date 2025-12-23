@@ -265,7 +265,9 @@ python -m src.sound_recognition.train_passt --target direction --epochs 10
 ```bash
 python -m src.sound_recognition.evaluate
 ```
-评估结果将保存在 `reports/evaluation_results.csv`。
+评估结果将保存在 `reports/evaluation_results.csv`。如果您运行 `all_train_and_eval.sh` 脚本，其最终输出将如下图所示，包含了所有模型的评估结果和总运行时间：
+
+![all_train_and_eval.sh 脚本执行结果](imgs/train_and_eval.png)
 
 ---
 
