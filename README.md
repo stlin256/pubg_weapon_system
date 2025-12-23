@@ -4,6 +4,18 @@
 
 ---
 
+## 文档中心
+
+本文档是项目的**快速指南**。为了更深入地了解特定模块，请参阅以下专业文档：
+
+*   **[模型成果报告](SOUNDS_REPORT.md)**: 查看我们最终的模型性能对比、数据分析和项目结论。
+*   **[模型训练指南](sounds_model_GUIDE.md)**: 了解如何设置环境、训练和评估所有模型。
+*   **[Web应用技术文档](WEAPON_SYSTEM_GUIDE.md)**: 了解Web应用的架构和运行方式。
+
+---
+
+## 系统架构总览
+
 ```mermaid
 graph TB
     %% ==================== 定义样式 ====================
@@ -131,48 +143,78 @@ graph TB
     Env -.->|算力支撑| InferenceService
 ```
 
+---
 
-## 🚀 核心功能亮点
+## 核心亮点
 
-### Web 应用
+### 成果：双声道PaSST模型
+本项目最核心的技术创新在于，我们没有止步于使用现有的音频识别模型，而是针对性地解决了**声音方位识别**这一关键难题。
+
+*   **技术洞察**: 传统的单声道音频模型因缺少空间信息，无法有效区分声音的左右来源。
+*   **解决方案**: 我们对先进的 **PaSST (Patch Audio Spectrogram Transformer)** 模型的底层结构进行了改造，使其能够**同时处理双声道（Stereo）音频**，从而有效学习到决定声音空间感的**双耳时间差**和**双耳强度差**等关键特征。
+*   **卓越性能**: 这一创新取得了巨大成功。改造后的模型在最具挑战的**方向识别**任务上，准确率飙升至 **91.6%**，以绝对优势超越了所有基线模型，是项目成功的关键。
+
+![模型总准确率对比](reports/figures/overall_accuracy_grouped_zh.png)
+
+### 应用功能亮点
 *   **企业级 Web 架构**: 采用 Flask 应用工厂模式和蓝图（Blueprints），实现高度模块化与可扩展性。
-*   **全功能武器库**: 为普通用户提供对武器数据的增、删、改、查 (CRUD) 功能。
-*   **在线枪声识别**: 允许用户上传音频文件，选择不同的预训练模型进行**实时推理**，并以可视化的方式展示识别结果和模型性能 Benchmark。
-*   **强大的管理员后台**: 提供独立的管理员登录和专属仪表盘，可实时监控站点数据、查看日志、管理用户和调整模型缓存策略。
-*   **坚固的安全机制**: 用户名、密码和武器库数据均采用 AES (GCM 模式) **全加密**存储。
-*   **现代化前端体验**:
-    *   支持中/英文双语切换。
-    *   所有模块均采用响应式布局，适配桌面与移动端。
-    *   包含数据排序、自定义模态框等高级交互功能。
+*   **全功能武器库**: 为用户提供对武器数据的增、删、改、查 (CRUD) 功能。
+*   **在线枪声识别**: 允许用户上传音频，选择不同模型进行**实时推理**，并提供可视化的模型性能 Benchmark。
+*   **强大的管理员后台**: 独立的管理面板，可实时监控站点数据、查看日志、管理用户和**动态调整模型缓存策略**。
+*   **坚固的安全机制**: 用户数据和玩家存档均采用 AES (GCM 模式) **全加密**存储。
+*   **现代化前端体验**: 所有模块均采用响应式布局，完美适配桌面与移动端，并包含数据排序、自定义模态框等高级交互。
 
-### 武器声音识别系统
-*   **高精度多维识别**: 能从音频中准确识别**武器类型**、**开火距离**和**声源方向**。
-*   **前沿模型应用**: 系统性地评估了多种传统模型，并创新性地微调了两种先进的 Transformer 模型 (AST 和 PaSST)。
-*   **突破性成果**:
-    *   经过**双声道改造**的 PaSST 模型在所有任务中均表现最佳。
-    *   尤其在最具挑战的**方向识别**任务上，PaSST 模型准确率高达 **91.6%**，显著超越其他所有模型。
+### 科学的ML流水线
+*   **高精度多维识别**: 能从音频中准确识别**武器类型**、**开火距离**和**声源方向**三大核心信息。
 *   **模块化科学流程**: 实现了从数据处理、特征工程到模型训练、批量评估和结果可视化的完整、可复现流水线。
 
 ---
 
-## 📊 最终成果展示
+## 成果界面展示
 
-### 武器声音识别模型性能总览
-下图清晰地展示了，在所有三个识别任务中，我们所采用的 Transformer 模型（尤其是经过双声道改造的 PaSST）性能远超所有传统机器学习基线模型。
+我们为PC和移动端都提供了精心设计的响应式界面，确保在任何设备上都有一致的优质体验。
 
-![模型总准确率对比](reports/figures/overall_accuracy_grouped_zh.png)
+<table width="100%" cellpadding="2">
+    <thead>
+        <tr>
+            <th align="center">用户武器库</th>
+            <th align="center">枪声识别</th>
+            <th align="center">管理面板</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td align="center"><img src="imgs/webpage.png" alt="PC端用户武器库界面" width="100%"></td>
+            <td align="center"><img src="imgs/webpage3.png" alt="PC端枪声识别界面" width="100%"></td>
+            <td align="center"><img src="imgs/webpage2.png" alt="PC端管理面板界面" width="100%"></td>
+        </tr>
+    </tbody>
+</table>
 
-### 网页界面
-![武器管理系统截图](imgs/webpage.png)
+<table width="100%" cellpadding="2">
+    <thead>
+        <tr>
+            <th align="center">登录</th>
+            <th align="center">武器库</th>
+            <th align="center">枪声识别</th>
+            <th align="center">管理面板</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td align="center"><img src="imgs/webpage_mobile_login.png" alt="移动端登录界面" width="100%"></td>
+            <td align="center"><img src="imgs/webpage_mobile_dashboard.png" alt="移动端武器库界面" width="100%"></td>
+            <td align="center"><img src="imgs/webpage_mobile_dashboard2.png" alt="移动端枪声识别界面" width="100%"></td>
+            <td align="center"><img src="imgs/webpage_mobile_admin.png" alt="移动端管理面板" width="100%"></td>
+        </tr>
+    </tbody>
+</table>
 
-![声音识别截图](imgs/webpage3.png)
-
-![控制台截图](imgs/webpage2.png)
 ---
 
-## 🛠️ 环境设置
+## 环境设置
 
-项目依赖 Python 3.10+ 环境。推荐使用 Conda 创建独立的虚拟环境以保证环境纯净。
+项目依赖 Python 3.10+ 环境。推荐使用 Conda 创建独立的虚拟环境。
 
 1.  **创建并激活 Conda 环境**:
     ```bash
@@ -181,97 +223,74 @@ graph TB
     ```
 
 2.  **安装依赖**:
-    项目的所有依赖项都已整合到 `requirements.txt` 文件中。请运行以下命令进行安装：
     ```bash
     pip install -r requirements.txt
     ```
-    > **注意**: 声音识别系统为了使用 CUDA 加速，请确保您已正确安装 NVIDIA 驱动和 CUDA Toolkit，并建议安装 PyTorch 的 CUDA 版本。
+    > **注意**: 为了使用GPU加速，请确保您已正确安装 NVIDIA 驱动和 CUDA Toolkit，并建议安装 PyTorch 的 CUDA 版本。
 
 ---
 
-## 模块一：🔫 Web 应用
+## 运行指南
 
-### 简介
-这是一个基于 Flask 的多功能 Web 应用，集成了**武器管理**、**在线枪声识别**和**后台管理**三大模块。
+### 模块一：Web 应用 (在线服务)
 
-### ▶️ 如何运行
-
-1.  **确保依赖已安装**: `pip install -r requirements.txt`
-2.  **启动服务**: 在项目根目录下运行：
+1.  **启动服务**: 在项目根目录下运行：
     ```bash
     python3 run.py
     ```
-3.  **访问应用**:
-    *   **普通用户**: 打开浏览器并访问 `http://127.0.0.1:5000/`。您可以注册新用户或使用已有用户登录。
-    *   **管理员**: 使用 `admin_credentials.txt` 中定义的凭据在登录页面登录，您将被自动重定向到 `/admin` 管理面板。
+2.  **访问应用**:
+    *   **普通用户**: 打开浏览器并访问 `http://127.0.0.1:5000/`。
+    *   **管理员**: 使用 `admin_credentials.txt` 中定义的凭据在登录页面登录，将自动重定向到 `/admin`。
 
----
+### 模块二：声音识别系统 (模型训练)
 
-## 模块二：🔊 武器声音识别系统
-
-### 简介
-这是一个模块化的机器学习流水线，用于**训练和评估**声音识别模型。关于如何将训练好的模型部署到 Web 应用中进行**实时推理**，请参阅 Web 应用模块。
-
-### ▶️ 如何运行
-
-整个流程分为三步，请在项目根目录下按顺序执行。
+这是一个用于**训练和评估**模型的离线流水线。请在项目根目录下按顺序执行。
 
 **第一步: 特征提取 (仅传统模型需要)**
-
-此命令会处理 `sounds/` 目录下的所有音频，提取 MFCC 特征，为后续传统模型训练做准备。
 ```bash
 python -m src.sound_recognition.feature_extractor
 ```
 
-**第二步: 模型训练**
-
-您可以选择性地训练单个或多个模型。以下为几个示例：
-
+**第二步: 模型训练 (示例)**
 ```bash
-# 示例 1: 训练一个 RandomForest 模型来预测 weapon
+# 训练 RandomForest 来预测 weapon
 python -m src.sound_recognition.train --model RandomForest --target weapon
 
-# 示例 2: 训练一个 XGBoost 模型来预测 distance (使用 CUDA)
-python -m src.sound_recognition.train --model XGBoost --target distance --use_cuda
-
-# 示例 3: 微调 AST 模型来预测 weapon (训练 10 个 epoch)
-python -m src.sound_recognition.train_ast --target weapon --epochs 10
-
-# 示例 4: 微调我们改造后的双声道 PaSST 模型来预测 direction
+# 微调双声道 PaSST 模型来预测 direction
 python -m src.sound_recognition.train_passt --target direction --epochs 10
 ```
-> 我们提供了一个方便的批量训练脚本 `all_train_and_eval.sh`，它会训练所有预设的模型。您可以直接运行 `bash all_train_and_eval.sh`。
-
+> **提示**: 我们提供了一个方便的批量训练脚本 `all_train_and_eval.sh`，它会训练所有预设的模型。您可以直接运行 `bash all_train_and_eval.sh`。
 
 **第三步: 综合评估**
-
-当您训练完所有希望对比的模型后，运行此脚本。它会自动评估所有已保存的模型，并生成最终的性能报告 `reports/evaluation_results.csv` 和对比图。
 ```bash
 python -m src.sound_recognition.evaluate
 ```
+评估结果将保存在 `reports/evaluation_results.csv`。
 
 ---
 
-## 📁 项目结构
+## 项目结构
 
 ```
 .
-├── app/                  # Web应用核心包
-│   ├── templates/        # HTML 模板 (dashboard.html, admin.html, ...)
-│   ├── __init__.py       # 应用工厂, 注册蓝图
-│   ├── routes.py         # 路由层 (main_bp, admin_bp)
+├── app/                  # [核心] Web应用核心包
+│   ├── static/           # CSS, JS, Images
+│   ├── templates/        # HTML 模板
+│   ├── __init__.py       # 应用工厂, 创建app实例
+│   ├── routes.py         # 路由层 (API Endpoints)
 │   ├── services.py       # 用户与武器业务逻辑
 │   ├── admin_service.py  # 管理员认证服务
-│   └── inference_service.py # 模型推理服务
-├── data/                 # 持久化数据
-├── src/                  # 声音识别训练流水线核心代码
+│   └── inference_service.py # [核心] 模型推理服务
+├── data/                 # 用户数据与初始数据
+├── src/                  # [核心] 声音识别训练流水线
 │   └── sound_recognition/
 ├── reports/              # 评估报告与图表
-├── trained_models/       # 训练好的模型
-├── admin_credentials.txt # 管理员凭据
-├── cache_strategy.json   # 缓存策略配置
+├── trained_models/       # 训练好的模型文件
+├── admin_credentials.txt # 管理员凭据 (默认: admin:admin)
+├── cache_strategy.json   # 模型缓存策略配置
 ├── app.log               # 应用日志文件
 ├── models.py             # 数据模型 (Weapon, Player)
-├── run.py                # Web应用启动入口
+├── run.py                # [入口] Web应用启动脚本
 ├── version.txt           # 全局版本号文件
 └── README.md             # 本文档
+```
