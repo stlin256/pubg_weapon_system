@@ -1,0 +1,678 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MANUSCRIPT TEMPLATE: This is the official manuscript template (v1.0, released 31 August 2025) for Constitutional Studies. If you are new to using LaTeX to layout manuscripts in Overleaf, please read this helpful tutorial at www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes. For more on Constitutional Studies, visit constitutionalstudies.org.
+
+% TO PREPARE YOUR MANUSCRIPT: Review our manuscript guidelines at https://constitutionalstudies-ojs-utexas.tdl.org/cs/manuscriptguidelines. Then follow the instructions in green below at the beginning of each section.
+
+% TO SUBMIT YOUR MANUSCRIPT: Follow our submission process at https://constitutionalstudies-ojs-utexas.tdl.org/cs/submit.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% DOCUMENT SETUP: Do not make any changes to this section.
+%\documentclass[a4paper,10.5pt,twoside]{article}
+\documentclass[UTF8]{ctexart}
+\hyphenpenalty=8000
+\textwidth=125mm
+\textheight=200mm
+\usepackage[top=3cm, bottom=3cm, inner=3cm, outer=3cm, includehead]{geometry}
+% --- 关键：使用 ctexart 文档类，并指定xelatex编译器 ---
+
+
+\usepackage{graphicx} % 用于插图
+\usepackage{float}    % 用于控制浮动体位置 [H]
+\usepackage{amsmath}  % 用于数学公式
+\usepackage{caption}  % 用于自定义标题
+\usepackage{graphicx}     % 负责 \includegraphics 命令
+\usepackage{subcaption}   % 负责 subfigure 环境
+
+% --- minted 宏包配置 ---
+\usepackage[cache=true]{minted}
+% 设置 minted 环境的标题名称为“代码清单”
+\captionsetup[listing]{name=代码清单}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\raggedbottom
+\usepackage{xurl}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{ctex}
+\setCJKmainfont{Noto Serif CJK SC}
+\setCJKsansfont{Noto Sans CJK SC}
+\usepackage{alltt}
+\usepackage{amsmath}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{same}
+\usepackage[T1]{fontenc}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{csquotes}
+\usepackage{amsmath} 
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{minted}
+\usepackage[style=gb7714-2015, backend=biber]{biblatex}
+% 可选：设置代码块的样式，例如圆角背景框
+\usepackage[framemethod=TikZ]{mdframed}
+\newminted[pythoncode]{python}{
+	frame=lines,
+	framesep=2mm,
+	baselinestretch=1.2,
+	fontsize=\footnotesize,
+	linenos % 添加行号
+}
+\newcommand{\st}{\text{s.t. }}
+%\usepackage[notes, backend=biber]{biblatex-chicago}
+%\usepackage[notes, backend=biber, sorting=none]{biblatex-chicago}
+\bibliography{references}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\renewcommand{\footnoterule}{%
+	\kern -3pt
+	\hrule width 0.4\textwidth height 0.4pt
+	\kern 2.6pt
+}
+\newenvironment{hypothesis}[1]{%
+	\par\vspace{2ex}\noindent
+	{\bfseries #1}\par\nopagebreak
+	\vspace{0.5ex}
+}{%
+	\par
+}
+% LANGUAGE SELECTION: If you are submitting your manuscript in English, do not make any changes to this section. If you are submitting your manuscript in French, add a % in front of the "\usepackage[english]{babel}" command and remove the % in front of the "\usepackage[french]{babel}" command below; this will apply French spelling and formatting rules to the document. If you are submitting your manuscript in Spanish, add a % in front of the "\usepackage[english]{babel}" command and remove the % in front of the "\usepackage[spanish]{babel}" command below; this will apply Spanish spelling and formatting rules to the document.
+%\usepackage[french]{babel}
+%\usepackage[spanish]{babel}
+
+% AUTHOR AND TITLE: Replace "Author1" with your first author's information where noted below. Add or remove additional author information as needed, depending on the number of authors on your manuscript. Replace "Article title" with your article title where noted below.
+\begin{document}
+	
+	\begin{titlepage}
+		\centering % 页面内容整体居中
+		
+		% --- 顶部插入图片 ---
+		% 请确保 titlepage.png 文件与您的 .tex 文件在同一目录下
+		% 或者提供正确的相对路径
+		\vspace*{-3cm}
+		\includegraphics[width=1\textwidth]{title_page.png}
+		
+		\vspace{2cm} % 图片与标题之间的间距
+		
+		% --- 课程名称 ---
+		{\Huge \textbf{《程序设计基础》课程期末报告}} % 您可以修改为您的课程名称
+		
+		\vspace{1.5cm} % 课程标题与论文标题之间的间距
+		
+		% --- 论文标题 ---
+		% \VeryHuge 是一个非标准但常用的命令, 如果您的LaTeX环境不支持, 可以换回 \Huge
+		
+		\LARGE
+		\textbf{PUBG 武器管理与声音识别综合实践}\\[6pt] % 在冒号后强制换行，并减小行间距
+		\textbf{一个涵盖模型训练到Web服务的工程实践}\\[12pt]
+		
+		\vspace{2cm} % 论文标题与成员信息之间的间距
+		
+		% --- 成员、学院、日期等信息 ---
+		\large % 将这部分文字放大一些
+		\begin{tabular}{c} % 使用两列对齐的表格环境, 右对齐标签, 左对齐内容
+			电子工程学院（人工智能学院） \\[8pt]
+			2024级人工智能2班
+		\end{tabular}
+		
+		\vspace{1.5cm} % 学院信息与成员信息之间的间距
+		
+		\begin{tabular}{r @{\hspace{1.5em}} l}
+			
+			% --- 组长信息 ---
+			\textbf{林怡嘉\ 202434610218}& \\
+			
+			\textbf{林兴昊\ 202434610217}& \\
+			
+			\textbf{韩兴隆\ 202434610207}& \\
+			
+		\end{tabular}
+		
+		
+		\vfill % 将下方的所有内容推到页面底部 (如果需要的话)
+		\large % 将这部分文字放大一些
+		\begin{tabular}{c} 
+			2025年12月 \\% \today 会自动生成当天的日期, 您也可以手动填写如 2025年11月16日
+		\end{tabular}
+	\end{titlepage}
+	
+	
+	
+	\pagestyle{fancy}     % 激活 fancy 样式
+	
+	\fancyhf{}
+	
+	\fancyhead[L]{《程序设计基础》\ 2025年秋\ 课程期末报告} % L 代表 All Pages Left (所有页面的左侧)
+	\fancyhead[R]{\thepage}             % R 代表 All Pages Right (所有页面的右侧)
+	
+	% 3. 设置页眉下方的横线宽度 (0.4pt 是默认值，可以不写)
+	\renewcommand{\headrulewidth}{0.4pt}
+	
+	% (可选) 如果不希望有页脚，可以取消下面的注释
+	% \fancyfoot{}
+	% --- 设置结束 ---
+	\begin{center}
+		\LARGE
+		\textbf{PUBG 武器管理与声音识别综合实践}\\[6pt] % 在冒号后强制换行，并减小行间距
+		\textbf{一个涵盖模型训练到Web服务的工程实践}\\[12pt]
+		\normalsize
+		\textbf{林怡嘉 \quad 林兴昊 \quad 韩兴隆}\\[12pt]
+	\end{center}
+	
+	% ABSTRACT AND KEYWORDS: Replace "Abstract text" with your abstract text of 100-200 words where noted below. Replace "keyword, keyword, keyword" with your 5-10 keywords, separated by commas, where noted below. 
+	
+	\begin{abstract}
+		\normalsize
+		本项目\footnote{项目源码与文档地址（GitHub）：\url{https://github.com/stlin256/pubg_weapon_system}}旨在构建一个集成了高性能机器学习流水线与全功能Web服务的综合性系统，以对PUBG游戏中的武器开火声进行精确的多维度识别（武器类型、距离、方向）。为实现此目标，我们设计并实现了一个包含“离线模型训练”与“在线推理服务”两大核心模块的工程实践。
+		
+		为达成高精度的识别目标，本研究通过一套科学、可复现的机器学习流水线系统性地解决了模型选型问题：(1) 对多种传统机器学习模型（如随机森林、XGBoost）和两种前沿的Transformer音频识别模型（AST, PaSST）进行了全面的训练与评估；(2) 针对声源方向识别的独特挑战，我们创新性地对\textbf{PaSST模型进行了双声道改造}，使其能有效捕捉并利用决定声音空间感的关键特征。在此基础上，我们开发了一套基于Flask应用工厂模式的、功能完备的Web应用，集成了用户管理、数据加密、实时推理接口以及智能模型缓存等功能，实现了从模型到服务的无缝衔接。
+		
+		本项目的一个核心发现是，经过双声道改造的PaSST模型在所有识别任务上均表现最佳，尤其是在最具挑战性的\textbf{方向识别任务上，其准确率达到了91.6\%}，性能显著超越所有其他单声道模型。这一结果有力地证实了双声道信息对于高精度声学定位的必要性。此外，通过将模型训练系统与Web服务系统解耦，本项目也成功实践了一套模块化、可扩展的AI应用工程架构。
+		
+		综上，本研究不仅交付了一个在关键任务上性能卓越的深度学习模型，更重要的是，完成了一次从模型研发、科学评估到最终服务化部署的\textbf{全栈系统工程实践}，为复杂AI技术在实际应用中的落地提供了一套完整且高效的解决方案。
+		
+		
+		
+		\vskip 2mm
+		\textbf{关键词:} 声音识别, 机器学习, 全栈开发, Transformer, PaSST, Flask
+	\end{abstract}
+	
+	\newpage
+	\tableofcontents
+	\newpage
+	
+	\section{引言}\label{s:1}
+	
+	本课程设计是面向人工智能专业核心课程的一项综合性实践，旨在系统性地应用与巩固Python程序设计、面向对象编程、数据处理与机器学习等核心知识。根据课程设计要求，本项目围绕《绝地求生》(PUBG)\footnote{一款TPS大逃杀游戏，游戏没有提供环境内各类声音的方向、种类、距离等信息，游玩时十分依赖玩家自身的声音辨别能力。}的游戏场景，整合了“武器管理系统”与“武器声音识别”两大核心模块，要求完成从需求分析、系统设计、程序实现到测试评估的全流程。
+	
+	为达成上述目标，本课程设计严格遵循了模块化的开发思路。在“武器管理系统”模块中，我们应用了面向对象编程、文件读写与数据持久化技术，并为保证系统的健壮性与安全性，额外实现了异常处理与AES加密等拓展功能。在“武器声音识别”模块中，我们则遵循了科学的机器学习建模流程，不仅完成了课程要求的从原始音频中提取MFCC特征、训练并评估多种传统机器学习模型（Level B要求），更进一步探索了前沿深度学习模型在此任务上的应用潜力。
+	
+	在满足所有基本要求的基础上，为探索该课题的更高上限并挑战更完整的工程实践，本项目最终交付了以下三个层面的核心成果：
+	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+		\item \textbf{在系统工程实践上：} 我们并未止步于命令行工具，而是构建了一套从模型训练到服务部署的\textbf{端到端全栈应用}。该应用以后端Flask应用工厂与前端现代化UI为特色，集成了用户管理、实时推理API与功能强大的管理员后台，实现了AI能力的完整产品化落地。
+		\item \textbf{在模型方法探索上：} 我们建立了一套科学、可复现的评估流水线，系统性地对比了多种传统机器学习模型与两种前沿的Transformer音频识别模型（AST, PaSST），为模型选型提供了坚实的数据支撑。
+		\item \textbf{在核心技术创新上：} 为解决课程设计中最具挑战性的声源方向识别任务，我们创新性地改造了\textbf{PaSST模型}，使其能够\textbf{处理双声道音频}。实证表明，该模型取得了\textbf{91.6\%的方向识别准确率}，性能远超所有基线模型，是本项目在技术深度上的关键突破。
+	\end{itemize}
+	
+	本文的后续结构安排如下：第二章详细介绍本项目的总体架构设计，包括需求分析、创新的“双系统解耦”架构模式以及具体的模块职责划分。第三章将系统性地阐述本项目在技术实现上的第一个核心模块——“武器声音识别流水线”，详细介绍从数据工程、多模型探索与训练（特别是双声道PaSST模型的创新），到最终科学的实验评估与结果分析全过程。第四章则聚焦于第二个核心模块——“全栈Web应用服务”，详细拆解其后端架构、智能推理服务、前端实现以及管理员后台。第五章将通过功能测试截图、部署指南和结构化日志展示，证明项目的完成度。最后，第六章将对全文进行总结，并讨论项目的潜在局限与未来的发展方向。
+	
+	\newpage
+	
+	\section{系统总体设计}\label{s:2}
+	
+	\subsection{需求分析}\label{s:2.1}
+	本系统的设计严格遵循课程设计说明书的要求，我们将需求分解为“武器管理系统”与“武器声音识别”两大功能模块，并在满足基础要求之上，完成了全部加分拓展项。
+	
+	\subsubsection{武器管理系统模块需求}
+	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+		\item \textbf{玩家管理与认证：} 实现基于学号的玩家注册与密码登录功能，登录界面支持密码遮蔽，用户列表通过加密文件实现持久化存储。
+		\item \textbf{武器库核心功能：} 用户登录后，系统需支持对武器信息的增、删、改、查（CRUD）操作，并能按武器伤害、射速等属性进行排序。
+		\item \textbf{数据管理与交互：} 系统需能从外部 \texttt{Arms.xlsx} 文件中读取并初始化武器数据，并实现玩家武器数据的持久化。
+		\item \textbf{拓展功能：} 本项目实现了课程要求的全部加分拓展项，包括：(1) 通过设计 \texttt{Weapon} 与 \texttt{Player} 等类，实现了完全的面向对象编程；(2) 通过全面的异常处理，确保了文件操作与用户输入的安全性与健壮性；(3) 设计了功能丰富的Web交互界面；(4) 所有用户敏感数据均通过 \textbf{AES 加密算法} 进行了安全存储。
+	\end{itemize}
+	
+	\subsubsection{武器声音识别模块需求}
+	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+		\item \textbf{核心识别任务：} 要求使用课程提供的 \texttt{gun\_sound\_v2} 数据集，对音频中的武器类型、开火距离和声源方向三个维度进行识别。
+		\item \textbf{机器学习流程：} 完成数据探索、可视化、模型训练与交叉验证，并提交包含混淆矩阵与核心性能指标（Accuracy, Precision, Recall, F1-score）的分析报告。
+		\item \textbf{进阶要求：} 本项目不仅完成了Level B要求的，从原始MP3音频出发，自主编写脚本提取 \textbf{MFCC 特征}，更进一步探索并实现了：(1) 基于 \textbf{Transformer} 架构的端到端深度学习模型；(2) 一套完整的、从模型训练到服务化部署的全栈Web应用。
+	\end{itemize}
+	
+	\subsection{总体架构设计：解耦的双系统模式}\label{s:2.2}
+	为满足上述复合型需求，并保证项目的高内聚、低耦合与可扩展性，我们没有采用将所有代码混杂在一起的单体架构，而是创新性地设计了一套\textbf{“离线模型训练流水线”}与\textbf{“在线Web推理服务”}相解耦的双系统架构。
+	
+	该架构的核心优势在于：
+	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+		\item \textbf{职责分离：} AI模型研发（位于\texttt{src/}目录）与Web应用服务（位于\texttt{app/}目录）可以被独立地开发、测试和迭代，互不干扰。
+		\item \textbf{提升效率：} 负责模型的开发人员可以专注于模型性能的调优，而Web开发人员则可以专注于用户体验与服务的稳定性。
+		\item \textbf{增强健壮性：} 两个系统的分离设计使得任何一方的修改都不会轻易影响另一方，极大地降低了项目的维护成本。
+	\end{itemize}
+	
+	本系统的总体架构、数据流与模块交互关系如图 \ref{fig:system-architecture} 所示。
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=\textwidth]{imgs/framwork.png}
+		\caption{系统综合架构图}
+		\label{fig:system-architecture}
+	\end{figure}
+	
+	如图 \ref{fig:system-architecture} 所示，整个系统的数据流清晰地分为两条主线。左侧的“训练流水线”负责处理原始音频数据，经过特征提取、模型训练与评估，最终将训练好的模型产出至\texttt{trained\_models/}目录。右侧的“应用服务”则加载这些预训练模型，通过Flask API路由将AI能力封装起来，并通过Web前端界面最终呈现给用户。
+	
+	\subsection{模块职责划分}\label{s:2.3}
+	根据上述架构设计，项目代码被清晰地划分为两大核心模块：
+	
+	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+		\item \textbf{声音识别训练流水线 (\texttt{src/sound\_recognition/})：} 该模块是整个系统的“\textbf{模型工厂}”，以一系列Python脚本的形式存在，通过命令行驱动。它负责从原始音频数据到产出高性能预训练模型的全部离线任务，包括数据解析、特征提取、模型训练和综合评估。这是一个独立的、可复现的机器学习研究环境。
+		
+		\item \textbf{Web应用与推理服务 (\texttt{app/})：} 该模块是项目的“服务门户”，负责将“模型工厂”产出的AI能力封装成稳定、可靠的Web API，并通过一个功能完备的用户界面提供给最终用户。它采用Flask应用工厂模式构建，内聚了用户管理、安全加密、武器库管理以及智能推理服务等所有在线功能。
+	\end{itemize}
+	
+	
+	
+	\section{模块一：武器声音识别流水线}\label{s:3}
+	
+	本章详细阐述武器声音识别系统的核心技术——即“离线模型训练流水线”的完整实现。我们遵循科学的机器学习开发流程，从数据工程、模型探索与训练，到最终的实验评估，系统性地构建并验证了我们的模型。
+	
+	\subsection{数据工程}\label{s:3.1}
+	
+	高质量的数据是模型性能的基石。本节介绍我们如何对原始音频数据进行规范化的处理与组织。
+	
+	\subsubsection{数据集描述与标签解析}
+	本项目使用的数据集为 \texttt{gun\_sound\_v2}，包含了多种武器在不同距离、不同方位的MP3格式枪声音频。音频文件名遵循 \texttt{weapon\_distance\_direction\_id.mp3} 的统一格式，例如 \texttt{ak\_0m\_center\_0017.mp3}，这为我们自动化解析标签提供了便利。
+	
+	我们编写了 \texttt{src/sound\_recognition/dataset.py} 脚本，其中的 \texttt{parse\_info\_from\_filename} 函数负责从每个文件名中自动解析出武器类型 (weapon)、开火距离 (distance) 和声源方向 (direction) 三个核心标签。脚本 \texttt{load\_audio\_paths\_and\_labels} 则会遍历所有音频文件，生成一份完整的标签分布预览（见表 \ref{tab:label_distribution}），使我们能对数据概况有一目了然的认知。
+	
+	% Example Table: You might need to generate this table from your script's output
+	\begin{table}[htbp]
+		\centering
+		\caption{音频数据集标签分布预览}
+		\label{tab:label_distribution}
+		\begin{tabular}{lrrr}
+			\toprule
+			\textbf{类别} & \textbf{weapon} & \textbf{distance} & \textbf{direction} \\
+			\midrule
+			ak & 431 & 0 & 0 \\
+			m4 & 415 & 0 & 0 \\
+			m24 & 372 & 0 & 0 \\
+			... & ... & ... & ... \\
+			\midrule % Separator line for clarity
+			0m & 0 & 1013 & 0 \\
+			50m & 0 & 200 & 0 \\
+			100m & 0 & 220 & 0 \\
+			... & ... & ... & ... \\
+			\midrule % Separator line for clarity
+			center & 0 & 0 & 1013 \\
+			back & 0 & 0 & 289 \\
+			left & 0 & 0 & 290 \\
+			... & ... & ... & ... \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	
+	\subsubsection{特征工程：从MFCC到声谱图}
+	针对不同类型的模型，我们采用了不同的特征工程策略：
+	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+		\item \textbf{传统模型特征 (MFCC)：} 对于传统的机器学习模型，我们选择 \textbf{MFCC (梅尔频率倒谱系数)} \footfullcite{davis1980comparison}作为核心声学特征。MFCC能够有效模拟人耳的听觉感知特性，将音频信号的频谱包络信息编码为一组低维、鲁棒的特征向量。我们通过独立的 \texttt{src/sound\_recognition/feature\_extractor.py} 脚本批量提取所有音频的MFCC特征并保存为 \texttt{.npy} 文件，极大地加速了后续基线模型的实验迭代效率。
+		\item \textbf{深度学习输入 (声谱图)：} 对于Transformer等深度学习模型，我们直接将原始音频波形转换为\textbf{对数梅尔声谱图 (Log-Mel Spectrogram)}，并将其作为图像输入到模型中，让模型自动学习从声谱图中提取最高效、最相关的声学特征。一个典型的梅尔声谱图示例如图 \ref{fig:log-mel-spectrogram} 所示。
+	\end{itemize}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.6\textwidth]{imgs/Log-Mel.png}
+		\caption{梅尔声谱图}
+		\label{fig:log-mel-spectrogram}
+	\end{figure}
+	
+	\subsection{模型探索与训练}\label{s:3.2}
+	为了找到最优的模型方案，我们进行了一场从传统基线到前沿模型的系统性探索。
+	
+	\subsubsection{基线模型：传统机器学习方法}
+	为建立一个可靠的性能基准 (Baseline)，我们首先在 \texttt{src/sound\_recognition/train.py} 脚本中实现并评估了多种经典的机器学习模型。这些模型均以MFCC特征作为输入。我们所选用的基线模型及其核心参数如表 \ref{tab:baseline_models} 所示。
+	
+	\begin{table}[htbp]
+		\centering
+		\caption{传统机器学习基线模型及核心参数}
+		\label{tab:baseline_models}
+		\begin{tabular}{ll}
+			\toprule
+			\textbf{模型} & \textbf{核心参数/描述} \\
+			\midrule
+			RandomForest & \texttt{n\_estimators=100} \\
+			KNN & \texttt{n\_neighbors=5} \\
+			SVM & 使用径向基函数核 (\texttt{kernel='rbf'}) \\
+			XGBoost & 目标函数为多分类 (\texttt{objective='multi:softmax'}) \\
+			LightGBM & \texttt{n\_estimators=200} \\
+			SVM\_GridSearch & 通过网格搜索自动寻找最优的 C 和 gamma 参数 \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	\subsubsection{前沿模型：音频Transformer (AST)}
+	我们引入了先进的 \textbf{AST (Audio Spectrogram Transformer)} 模型\footfullcite{gong2021ast}。该模型借鉴了计算机视觉领域Vision Transformer (ViT)的思想，将声谱图视为一张“图片”，并利用Transformer强大的自注意力机制直接从声谱图中学习音频表征。我们通过 \texttt{src/sound\_recognition/train\_ast.py} 脚本，利用Hugging Face生态系统提供的预训练AST模型进行了高效的微调。
+	
+	\subsubsection{突破性探索：双声道PaSST模型}
+	在初步实验中，我们发现AST等单声道模型虽然在武器和距离识别上表现优异，但在“方向识别”任务上存在天然的理论局限性——即无法感知声音的空间信息。为解决此问题，我们进行了本项目的核心技术创新：对 \textbf{PaSST (Patch Audio Spectrogram Transformer)}模型\footfullcite{koutini2022passt}进行\textbf{双声道改造}。
+	
+	我们的方案是修改模型的Patch Embedding层，使其能够\textbf{同时接收左、右两个声道的对数梅尔声谱图}作为双通道输入，而非混合后的单通道输入。这样，模型便能从两个声道的细微差异中学习到\textbf{双耳时间差}和\textbf{双耳强度差}等关键空间线索。其核心思想如图 \ref{fig:passt_diag} 所示。
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.7\textwidth]{imgs/passt_diag.png}
+		\caption{双声道PaSST模型数据处理流程示意图}
+		\label{fig:passt_diag}
+	\end{figure}
+	
+	如图 \ref{fig:passt_diag} 所示，左、右声道的声谱图被分别处理并作为两个独立的通道输入模型，在后续的自注意力层中进行信息融合。该创新在 \texttt{src/sound\_recognition/train\_passt.py} 脚本中实现，核心改造逻辑如代码清单 \ref{lst:passt-forward} 所示。
+	
+	\begin{listing}[htbp]
+		\begin{minted}[
+			frame=lines,
+			framesep=2mm,
+			baselinestretch=1.2,
+			fontsize=\footnotesize,
+			linenos,
+			tabsize=4,
+			autogobble
+			]{python}
+            # PaSSTForTraining.forward() 函数核心逻辑
+            # 1. 分离左右声道
+            x_left, x_right = input_values[:, 0], input_values[:, 1]
+            
+            # 2. 分别提取每个声道的梅尔声谱图
+            spec_left = self.mel(x_left).unsqueeze(1)
+            spec_right = self.mel(x_right).unsqueeze(1)
+            
+            # 3. 在通道维度上堆叠，创建2通道“图像”
+            x = torch.cat([spec_left, spec_right], dim=1)
+            
+            # 4. 将2通道输入送入改造后的Transformer
+            logits = self.net(x)
+		\end{minted}
+		\caption{双声道PaSST模型前向传播核心逻辑}
+		\label{lst:passt-forward}
+	\end{listing}
+	
+	
+	
+	
+	\subsection{实验设置与评估流程}\label{s:3.3}
+	为保证实验的科学性、严谨性和可复现性，我们设计了统一的评估流程。
+	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+		\item \textbf{数据集划分策略：} 我们在 \texttt{src/sound\_recognition/dataset.py} 中采用\textbf{带分层的随机抽样} (\texttt{stratify}) 来划分训练集与测试集，确保了训练集和测试集中各个类别的样本比例与原始数据集保持一致。
+		\item \textbf{评估指标：} 我们选用Accuracy, Precision (Macro), Recall (Macro), F1-score (Macro) 作为核心评估指标。采用Macro平均能够公平地对待所有类别，避免因样本不均衡问题导致评估结果出现偏差。
+		\item \textbf{自动化评估脚本：} 我们编写了 \texttt{src/sound\_recognition/evaluate.py} 脚本，该脚本能够\textbf{自动发现 \texttt{trained\_models/} 目录下所有已训练好的模型}（包括scikit-learn模型和Transformer模型），并在统一的测试集上运行评估，最终生成一份包含所有模型性能的综合性CSV报告。这一自动化流程极大地提升了实验效率和结果的一致性。
+	\end{itemize}
+	
+	\subsection{实验结果与分析}\label{s:3.4}
+	在对所有模型进行完整训练和评估后，我们得到了清晰的、数据驱动的性能对比结果。
+	
+	\subsubsection{总体性能对比}
+	所有模型在三个任务上的总体准确率表现如图 \ref{fig:overall_accuracy} 所示。从图中可以得出第一个核心发现：\textbf{两种Transformer模型（PaSST和AST）的性能全面、显著地超越了所有传统机器学习基线模型}，这证明了端到端深度学习方法在直接从声谱图学习复杂声学特征方面的优越性。
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=\textwidth]{reports/figures/overall_accuracy_grouped_zh.png}
+		\caption{所有模型在三个任务上的总体准确率对比}
+		\label{fig:overall_accuracy}
+	\end{figure}
+	
+	\subsubsection{各任务详细分析与最优模型确立}
+	我们将三个任务的性能分开进行详细对比（见图 \ref{fig:task_comparison}）。在“武器”和“距离”识别任务上，PaSST和AST均取得了接近完美的性能。然而，在最具挑战性的“方向”识别任务上，模型的性能出现了显著分化。
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{reports/figures/all_models_direction_zh.png}
+		\caption{各模型在“方向识别”任务上的性能对比}
+		\label{fig:task_comparison}
+	\end{figure}
+	
+	如图 \ref{fig:task_comparison} 所示，我们经过\textbf{双声道改造的PaSST模型}在此任务上取得了\textbf{91.6\%的准确率}，比次优的单声道AST模型高出8个百分点，更是将所有传统模型远远甩在身后。这一结果强有力地证明了我们双声道改造策略的巨大成功。
+	
+	\subsubsection{性能洞察与结论}
+	为进一步洞察模型表现，我们绘制了所有模型在三个任务上的F1分数热力图（见图 \ref{fig:heatmap}）。图中清晰地显示，\texttt{passt}模型在所有格子中都处于最亮的区间，再次证明了其综合性能最优的地位。
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{reports/figures/performance_heatmap_zh.png}
+		\caption{模型性能热力图 (F1分数)}
+		\label{fig:heatmap}
+	\end{figure}
+	
+	\textbf{本章结论：} 通过本次系统性的模型探索、训练与评估，我们可以得出明确结论：\textbf{对于武器声音识别这一多维分类任务，经过双声道改造的PaSST模型是当前最优的技术方案，在所有任务上均取得了最佳或接近最佳的性能，尤其是在关键的方向识别任务上表现突出。}
+	
+
+\section{模块二：全栈Web应用服务}\label{s:4}
+
+在上一章中，我们成功地构建并验证了一套能够产出高性能AI模型的离线流水线。本章将详细阐述我们如何将这些AI能力产品化、工程化，即通过构建一个功能完备、安全可靠、用户体验良好的全栈Web应用，将AI模型封装为可供最终用户访问的在线服务。这是本项目在工程完整性和全栈能力上的核心体现。
+
+\subsection{后端架构设计}\label{s:4.1}
+
+为保证Web应用的可维护性、可扩展性和稳定性，我们采用了业界推荐的现代Web开发模式，而非简单的脚本式编程。
+
+\subsubsection{Flask应用工厂模式与蓝图}
+本项目后端采用Flask框架构建。我们并未使用全局Flask实例的简单模式，而是采用了更先进的\textbf{应用工厂模式}。如 \texttt{app/\_\_init\_\_.py} 所示，我们定义了一个 \texttt{create\_app()} 函数，它负责创建并配置Flask应用实例。该模式的核心优势在于可以有效避免循环依赖问题，并为后续的多环境部署（如开发、测试、生产）与单元测试打下坚实基础。
+
+同时，为实现路由的模块化管理，我们利用Flask的\textbf{蓝图}功能，将应用的核心路由划分为了负责处理普通用户请求的 \texttt{main\_bp} 和负责处理管理员API的 \texttt{admin\_bp}。这种划分使得不同功能模块的API可以被独立地开发和维护，极大地提升了代码的组织清晰度。
+
+\subsubsection{分层的服务逻辑}
+我们的后端代码严格遵循了经典的三层架构思想（路由层 $\rightarrow$ 服务层 $\rightarrow$ 数据层），以实现不同逻辑层之间的解耦。位于 \texttt{app/services.py} 的 \texttt{UserService} 和 \texttt{WeaponService} 等服务类，封装了所有核心的用户及武器库业务逻辑。路由层（位于 \texttt{app/routes.py}）的职责被严格限定于解析HTTP请求、调用相应的服务方法并序列化返回结果，从而保持了其作为“控制器”的简洁性。
+
+\subsubsection{数据持久化与AES加密}
+数据安全是本系统设计的重要考量之一。作为课程设计的核心加分项，我们对所有用户敏感数据进行了全加密处理。由 \texttt{app/services.py} 中的 \texttt{SecurityService} 类负责实现，我们采用了业界标准的\textbf{AES}加密算法。无论是用户的密码，还是每个玩家独立的武器库存档文件（\texttt{.dat}文件），在持久化到磁盘之前都会经过AES加密，确保了即使数据文件被物理泄露，其内容也无法被破解，有效保障了用户数据的私密性。
+
+\subsection{智能推理服务}\label{s:4.2}
+\texttt{InferenceService} 是连接AI模型与Web服务的桥梁，也是本项目在工程设计上最具巧思的核心模块。我们将其设计为一个统一、高效、可动态管理的模型服务层，以优雅地解决AI模型部署中的核心痛点。
+
+其核心设计与功能实现（位于 \texttt{app/inference\_service.py}）如下：
+\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+	\item \textbf{应用级单例：} \texttt{InferenceService} 在应用启动时被 \texttt{create\_app} 工厂函数创建为唯一的单例实例，并挂载于全局app对象上。这一设计确保了模型缓存池在整个应用生命周期中的全局唯一性，避免了重复加载模型导致的内存浪费。
+	\item \textbf{动态模型扫描：} 服务在初始化时，会通过 \texttt{\_scan\_models} 函数自动扫描 \texttt{trained\_models/} 目录下的所有模型文件和模型目录，并按“武器”、“距离”、“方向”三个任务进行动态分类，无需硬编码模型列表。
+	\item \textbf{统一预测接口：} 我们将所有模型的调用逻辑都封装在唯一的 \texttt{predict} 方法中。该方法能够通过判断传入的模型名称（例如，是否包含 \texttt{.pkl}、\texttt{ast} 或 \texttt{passt}）来\textbf{自动适配不同的特征提取流程和推理逻辑}。这种设计将scikit-learn、AST、PaSST等异构模型的复杂性完全内聚在服务内部，对上层API调用者呈现为一个统一、简洁的接口。
+	\item \textbf{智能缓存机制：} 为平衡服务器性能与内存资源，我们设计并实现了一套\textbf{可动态切换的智能缓存策略}。通过 \texttt{cache\_strategy.json} 配置文件或管理员API，系统可以在“全部预加载 (\texttt{all})”和“按需加载 (\texttt{selected})”两种模式间切换。前者会在服务启动时将所有模型加载到内存中以获得最快的首次响应速度，而后者则只在模型首次被请求时才进行加载。这一功能充分体现了我们对生产环境中资源管理的深入思考。
+\end{itemize}
+
+\subsection{前端设计与实现}\label{s:4.3}
+本系统的前端界面旨在提供一个现代化、功能丰富且用户友好的交互体验。前端技术栈主要包括 HTML、CSS、原生JavaScript，并通过Jinja2模板引擎与Flask后端进行数据交互。
+
+以核心的“枪声识别”模块为例，其前后端交互流程如下：
+\begin{enumerate}[topsep=0.5ex, itemsep=0.5ex]
+	\item 页面加载时，前端通过JavaScript的 \texttt{fetch} API 异步调用后端的 \texttt{/api/models} 和 \texttt{/api/benchmark} 接口。
+	\item 获取到模型列表和性能数据后，动态填充模型选择下拉框，并利用Chart.js库将性能数据渲染为一个支持指标切换的、可视化的Benchmark条形图。
+	\item 用户上传音频文件并点击“开始识别”后，前端将文件和所选模型ID打包成 \texttt{FormData} 对象，再次异步调用核心的 \texttt{/api/recognize} 接口。
+	\item 接收到后端返回的包含识别结果的JSON数据后，前端动态更新UI，将预测出的武器、距离和方向信息呈现给用户。
+\end{enumerate}
+
+此外，为了在不同设备上提供一致的优质体验，所有界面均采用了\textbf{响应式布局}设计。如图 \ref{fig:ui-showcase} 所示，无论是用户仪表盘还是管理员后台，系统都能在PC桌面端和移动设备上进行优雅地适配和渲染。
+
+\begin{figure}[htbp]
+	\centering
+	% Row 1: PC Interfaces
+	\begin{minipage}{\textwidth}
+		\centering
+		\includegraphics[width=0.6\textwidth]{imgs/webpage.png}\hfill
+		\includegraphics[width=0.4\textwidth]{imgs/webpage3.png}
+		\subcaption{PC端核心界面（武器库、枪声识别）}
+	\end{minipage}
+	
+	\vspace{1em} % Vertical space between PC and Mobile rows
+	
+	% Row 2: Mobile Interfaces
+	\begin{minipage}{\textwidth}
+		\centering
+		\includegraphics[width=0.24\linewidth]{imgs/webpage_mobile_login.png}\hfill
+		\includegraphics[width=0.24\linewidth]{imgs/webpage_mobile_dashboard.png}\hfill
+		\includegraphics[width=0.24\linewidth]{imgs/webpage_mobile_dashboard2.png}\hfill
+		\includegraphics[width=0.24\linewidth]{imgs/webpage_mobile_admin.png}
+		\subcaption{移动端核心界面（从左至右：登录、武器库、枪声识别、管理员后台）}
+	\end{minipage}
+	
+	\caption{系统核心界面的响应式设计与多平台UI展示}
+	\label{fig:ui-showcase}
+\end{figure}
+
+
+
+\subsection{管理员后台系统}\label{s:4.4}
+我们为本系统设计并开发了一套功能强大的独立管理员后台，以满足对系统进行监控与管理的需求（见图 \ref{fig:ui_admin}）。
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{imgs/webpage2.png}
+	\caption{管理员后台仪表盘界面}
+	\label{fig:ui_admin}
+\end{figure}
+
+该后台系统的核心功能与技术亮点包括：
+\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+	\item \textbf{安全的权限控制：} 所有管理员API（位于 \texttt{/api/admin/} 路径下）均由 \texttt{@admin\_required} 装饰器进行保护，该装饰器会严格校验请求头中的管理员凭据，确保了后台操作的安全性。
+	\item \textbf{一站式数据看板：} 提供一个集中的仪表盘，用于实时展示核心站点统计数据，如总用户数、总预测次数和当前已缓存的模型数量。
+	\item \textbf{便捷的用户管理与日志查看：} 管理员可以直接在前端界面上查看所有已注册用户的列表并执行删除操作，同时还可以通过内嵌的日志查看器实时监控 \texttt{app.log} 文件的最新内容。
+	\item \textbf{运行时动态管控：} 管理员后台提供了对 \texttt{InferenceService} 核心资源的运行时动态管控能力。通过调用 \texttt{/api/admin/clear\_cache} 和 \texttt{/api/admin/cache\_strategy} 接口，管理员可以\textbf{一键清空所有在内存中的模型缓存}，或\textbf{实时切换全局的缓存策略}，而无需修改代码或重启服务。这一功能对于线上服务的性能调优与资源管理具有极高的实用价值。
+\end{itemize}
+
+	
+	
+\section{系统测试与部署}\label{s:5}
+一个完整的项目交付不仅包含功能实现，更要确保其可靠性、易用性和可维护性。本章将通过展示关键功能的测试过程、清晰的部署指南和规范的日志记录，来证明本系统是一个经过验证的、健壮的软件工程实践。
+
+\subsection{功能测试}\label{s:5.1}
+为确保系统的稳定性和功能的完整性，我们对Web应用的核心模块进行了全面的功能测试。本节将以截图的形式，展示关键用户流程的测试过程与结果。
+
+\begin{figure}[htbp]
+	\centering
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\includegraphics[width=0.8\linewidth]{imgs/user_login.png}
+		\subcaption{用户登录界面测试}
+		\label{fig:test-login}
+	\end{minipage}\hfill
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{imgs/webpage.png}
+		\subcaption{武器库管理 (CRUD) 功能测试}
+		\label{fig:test-crud}
+	\end{minipage}
+	\caption{用户认证与武器库管理功能测试}
+	\label{fig:test-user-weapon}
+\end{figure}
+
+如图 \ref{fig:test-user-weapon} 所示，我们对用户认证和武器库管理的核心流程进行了测试。测试覆盖了：(1) 用户使用正确的凭据能够成功登录系统；(2) 登录后，用户可以对武器库进行增、删、改、查等全部操作。所有测试用例均按预期通过。
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.68\textwidth]{imgs/reco.png}
+	\caption{核心功能：枪声识别流程测试}
+	\label{fig:test-recognize}
+\end{figure}
+
+如图 \ref{fig:test-recognize} 所示，我们对核心的枪声识别功能进行了测试。测试步骤包括：(1) 用户进入识别模块，为不同任务选择指定模型；(2) 从本地上传一个音频文件；(3) 系统在短暂处理后，正确地在“识别结果”区域返回了对武器类型、距离和方向的预测。测试证明，从前端交互到后端推理服务的整个链路工作正常。
+
+
+\subsection{运行与部署指南}\label{s:5.2}
+为保证项目的可复现性，我们提供了清晰的运行与部署步骤。
+\begin{enumerate}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+	\item \textbf{环境配置：} 本项目依赖 Python 3.10+ 及 Conda 环境。首先，通过以下命令创建并激活独立的虚拟环境：
+	\begin{minted}{bash}
+        conda create -n pubg_system python=3.10
+        conda activate pubg_system
+	\end{minted}
+	然后，通过项目根目录下的 \texttt{requirements.txt} 文件安装所有必需的依赖库：
+	\begin{minted}{bash}
+        pip install -r requirements.txt
+	\end{minted}
+	\item \textbf{模型训练 (离线)：} Web服务依赖于预先训练好的模型。要完整复现我们的模型训练与评估流程，可直接运行根目录下的批量处理脚本（详见第三章）：
+	\begin{minted}{bash}
+        bash all_train_and_eval.sh
+	\end{minted}
+	\item \textbf{Web服务启动 (在线)：} 当模型训练完毕后，通过以下命令即可启动Web应用服务：
+	\begin{minted}{bash}
+        python run.py
+	\end{minted}
+	服务启动后，即可通过浏览器访问 \texttt{http://127.0.0.1:5000} 与系统进行交互。
+\end{enumerate}
+
+
+\subsection{结构化日志系统}\label{s:5.3}
+规范的日志记录是衡量一个系统可维护性的重要标准。为此，我们设计并实现了一套结构化的日志系统。
+
+\subsubsection{日志系统设计与实现}
+我们通过Python内置的 \texttt{logging} 模块，在 \texttt{app/routes.py} 中对日志系统进行了统一配置。所有日志都遵循预定义的格式，并被同时输出到运行终端和持久化的 \texttt{app.log} 文件中，便于实时监控与事后追溯。
+
+\subsubsection{日志格式详解}
+我们为核心的识别任务设计了信息丰富的日志格式，其结构对于线上问题排查、系统状态监控和用户行为分析具有重要价值。一条典型的成功识别日志经管理员后台的日志查看器渲染后，效果如图 \ref{fig:log-example} 所示。
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{imgs/logs.png}
+	\caption{管理员后台的结构化日志展示}
+	\label{fig:log-example}
+\end{figure}
+
+如图 \ref{fig:log-example} 所示，该日志的每一个字段都具有明确的含义：
+
+\begin{table}[H]
+	\centering
+	\caption{系统日志字段详细说明}
+	\label{tab:log-fields}
+	\small % 稍微缩小字号以容纳更多内容
+	% 定义列格式：
+	% l: 左对齐（字段名）
+	% p{5.5cm}: 固定宽度的左对齐列（用于长代码换行）
+	% X: 自动填充剩余宽度的列（用于描述文字）
+	\begin{tabularx}{\textwidth}{@{} l >{\ttfamily\raggedright\arraybackslash}p{5.5cm} X @{}}
+		\toprule
+		\textbf{字段名称} & \textbf{示例值} & \textbf{含义说明} \\
+		\midrule
+		Timestamp (时间戳) & 2025-12-23 18:14:12,241 & 记录事件发生的精确时间。 \\
+		\addlinespace % 增加行间距，提升阅读体验
+		Log Level (日志级别) & INFO & 表明事件的严重性，便于日志筛选与告警。 \\
+		\addlinespace
+		Status (执行状态) & Recognition success & 明确指示本次识别任务的最终结果是成功还是失败。 \\
+		\addlinespace
+		User (操作用户) & User: STLIN & 追溯该次操作的发起者。 \\
+		\addlinespace
+		File (处理文件) & File: m24\_600m\_right\_0354.mp3 & 记录被处理的原始文件名。 \\
+		\addlinespace
+		Models (所用模型) & Models: (w: passt\_weapon, d: passt\_distance, dir: passt\_direction) & 精确记录本次调用为三个任务分别选择了哪个模型。 \\
+		\addlinespace
+		Results (识别结果) & Results: (w: m24, d: 600m, dir: right) & 记录模型最终的预测输出。 \\
+		\addlinespace
+		Duration (执行耗时) & Duration: 0.07s & 记录本次请求的端到端处理时间，是性能监控的关键指标。 \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+综上，这种高度结构化、信息丰富的日志格式，为系统的\textbf{可观测性可}提供了坚实基础。
+
+
+	
+	
+	
+\section{总结与展望}\label{s:6}
+
+\subsection{项目总结}\label{s:6.1}
+综上所述，本项目不仅圆满完成了课程设计的所有要求，更在系统架构、模型创新与工程完整性上进行了深入的探索与实现。我们承认，当前系统作为一个课程设计产出，在性能与健壮性上尚属“玩具”级别，但它完整地实践并验证了一套从AI模型研发到Web服务部署的技术流程，为后续的迭代开发奠定了坚实基础。
+
+回顾整个项目，核心成果可总结为以下三个方面：
+\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+	\item \textbf{在系统工程实践上：} 我们成功设计并实现了一套\textbf{“双系统解耦”架构}，将模型研发与Web服务清晰分离。在此基础上，我们交付了一个包含用户认证、AES数据加密、动态模型管理和响应式UI的\textbf{端到端全栈应用}。这标志着我们不仅完成了功能开发，更实践了一套准工业级的AI应用工程方法论。
+	\item \textbf{在模型方法探索上：} 我们建立了一套\textbf{科学、可复现的自动化评估流水线}。通过该流水线，我们系统性地对比了多种传统机器学习模型与两种前沿的Transformer音频识别模型，为最终的技术选型提供了坚实、量化的数据支撑，体现了严谨的科学研究方法。
+	\item \textbf{在核心技术创新上：} 本项目最关键的技术突破在于，我们针对性地解决了声源方向识别的难题。通过对PaSST模型的底层进行改造，我们成功实现了一个能够处理\textbf{双声道音频的Transformer模型}。实验结果表明，该模型在最具挑战性的“方向识别”任务上取得了 \textbf{91.6\%} 的准确率，性能远超所有基线方案，是本项目在技术深度上的核心贡献。
+\end{itemize}
+
+综上所述，本项目不仅圆满完成了课程设计的所有要求，更在系统架构的先进性、模型方法的深度以及工程实践的完整性上进行了深入的探索与实现，达到了一个高完成度的AI应用原型标准。
+
+\subsection{不足与展望}\label{s:6.2}
+尽管本项目已取得一系列成果，但我们清醒地认识到其在模型能力、工程效率和产品价值上仍有广阔的提升空间。我们对未来的发展方向进行了深入思考，具体展望如下：
+
+\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+	\item \textbf{模型与算法能力增强：}
+	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+		\item \textbf{探索多任务学习：} 当前模型为每个任务单独训练。未来可探索将模型改造为共享骨干网络与多预测头的结构，实现一次推理同时输出三个任务结果，这有望在提升推理效率的同时，利用任务间的相关性进一步提升模型性能。
+		\item \textbf{引入数据增强：} 在训练流程中动态地为音频数据加入背景噪音、混响等，可以有效提升模型在真实、复杂声学环境下的泛化能力和鲁棒性。
+	\end{itemize}
+	\item \textbf{工程与运维效率优化：}
+	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+		\item \textbf{实现异步推理与任务队列：} 引入Celery与Redis等技术，将耗时的模型推理任务异步化。这将使Web服务器能瞬间处理大量并发请求，极大提高系统的吞吐量和可伸缩性。
+		\item \textbf{增强API安全性：} 将当前基于HTTP头的简单认证机制，升级为行业标准的JWT (JSON Web Tokens) 认证，以实现无状态、更安全的API权限控制。
+	\end{itemize}
+	\item \textbf{价值与功能扩展：}
+	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+		\item \textbf{开发实时音频流识别功能：} 利用WebSockets技术，探索从客户端进行实时音频流分析的可能性。这将是项目从一个“离线分析工具”向“游戏实时辅助系统”升级的关键一步，能够拓展出全新的应用场景。
+	\end{itemize}
+\end{itemize}
+	
+	%\newpage 
+	%\renewcommand{\bibname}{参考文献}
+	%\printbibliography[heading=bibintoc, title={参考文献}]
+	
+	
+\end{document}
