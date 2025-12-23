@@ -78,7 +78,7 @@ def classify_model_type(model_name):
     return 'Traditional ML'
 
 def plot_comparison(df, title_key, filename, lang='en', target_en=None, x='model', y='accuracy', hue=None):
-    """单独目标的详细对比图 (保持不变)"""
+    """单独目标的详细对比图"""
     t = TRANSLATIONS[lang]
     fig, ax = plt.subplots(figsize=(18, 10))
     palette = sns.color_palette("viridis", n_colors=len(df))
@@ -103,6 +103,7 @@ def plot_comparison(df, title_key, filename, lang='en', target_en=None, x='model
     ax.set_xlabel(t[x], fontsize=16)
     ax.tick_params(axis='x', labelsize=13)
     ax.tick_params(axis='y', labelsize=13)
+    ax.tick_params(axis='x', labelsize=13)
     plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
     ax.set_ylim(top=ax.get_ylim()[1] * 1.15)
 
@@ -113,7 +114,7 @@ def plot_comparison(df, title_key, filename, lang='en', target_en=None, x='model
 
 def plot_grouped_overall(df, title_key, filename, lang='en', y='accuracy'):
     """
-    全模型总览图 (修复图例背景色)
+    全模型总览图 
     """
     t = TRANSLATIONS[lang]
     df_plot = df.copy()
@@ -155,7 +156,6 @@ def plot_grouped_overall(df, title_key, filename, lang='en', y='accuracy'):
                         textcoords='offset points',
                         fontsize=9)
 
-    # --- 关键修复: 添加 frameon=True ---
     plt.legend(
         title=t['target'], 
         title_fontsize=12, 
@@ -171,6 +171,90 @@ def plot_grouped_overall(df, title_key, filename, lang='en', y='accuracy'):
     plt.savefig(save_path, dpi=HIGH_DPI, bbox_inches='tight')
     plt.close()
     print(f"Saved overall grouped plot to: {save_path}")
+
+def plot_dual_metric_comparison(df, title, filename, lang='en'):
+    """
+    生成双指标对比图 (条形图 + 折线图).
+    """
+    t = TRANSLATIONS[lang]
+    df_sorted = df.sort_values(by='accuracy', ascending=False)
+    
+    fig, ax1 = plt.subplots(figsize=(18, 10))
+
+    # --- 优化 1：使用更有梯度的调色板 ---
+    palette = sns.color_palette("viridis", n_colors=len(df_sorted))
+    # 绘制准确率条形图 (禁用自动图例)
+    bar = sns.barplot(data=df_sorted, x='model', y='accuracy', hue='model', palette=palette, ax=ax1, label=t['accuracy'], legend=False)
+    ax1.set_xlabel(t['model'], fontsize=16)
+    ax1.set_ylabel(t['accuracy'], fontsize=16, color='cornflowerblue')
+    ax1.tick_params(axis='y', labelcolor='cornflowerblue')
+    
+    # 修复：'ha' 不是 tick_params 的有效参数，应使用 setp
+    ax1.tick_params(axis='x', labelsize=13)
+    plt.setp(ax1.get_xticklabels(), rotation=45, ha='right')
+    ax1.set_ylim(0, 1.1)
+
+    # 在条形图上标注数值
+    for p in ax1.patches:
+        height = p.get_height()
+        ax1.annotate(f'{height:.3f}', (p.get_x() + p.get_width() / 2., height),
+                     ha='center', va='center', xytext=(0, 9), textcoords='offset points',
+                     fontsize=10, weight='bold', color='black')
+
+    # 创建第二个Y轴绘制F1分数折线图
+    ax2 = ax1.twinx()
+    line = sns.lineplot(data=df_sorted, x='model', y='f1-score (macro)', marker='o', sort=False,
+                 ax=ax2, color='darkorange', label=t['f1-score (macro)'])
+    ax2.set_ylabel(t['f1-score (macro)'], fontsize=16, color='darkorange')
+    ax2.tick_params(axis='y', labelcolor='darkorange')
+    ax2.set_ylim(0, 1.1)
+    
+    plt.title(title, fontsize=24, weight='bold', pad=25)
+    
+    # --- 优化 2：将图例置于内部右上角，并添加灰色背景 ---
+    handles1, labels1 = ax1.get_legend_handles_labels()
+    handles2, labels2 = ax2.get_legend_handles_labels()
+    if ax1.legend_: ax1.legend_.remove()
+    if ax2.legend_: ax2.legend_.remove()
+
+    # 创建一个统一的图例
+    ax2.legend(handles=handles1 + handles2, labels=[t['accuracy'], t['f1-score (macro)']],
+               loc='upper right', frameon=True, facecolor='#E0E0E0', framealpha=0.8)
+
+    fig.tight_layout() # 使用 tight_layout 自动调整边距
+
+    save_path = os.path.join(FIGURES_SAVE_PATH, filename)
+    plt.savefig(save_path, dpi=HIGH_DPI, bbox_inches='tight')
+    plt.close(fig)
+    print(f"Saved dual metric plot to: {save_path}")
+
+def plot_performance_heatmap(df, title, filename, lang='en'):
+    """
+    生成模型在不同任务上的性能热力图.
+    """
+    t = TRANSLATIONS[lang]
+    df_copy = df.copy()
+    
+    # --- 使用正则表达式提取基础模型名称 ---
+    df_copy['base_model'] = df_copy['model'].str.extract(r'(^[^_]+)')[0]
+    
+    # 创建数据透视表
+    heatmap_data = df_copy.pivot_table(index='base_model', columns='target', values='f1-score (macro)')
+    heatmap_data = heatmap_data.sort_values(by='weapon', ascending=False) # 按主要任务排序
+    
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(heatmap_data, annot=True, fmt=".3f", cmap="viridis", linewidths=.5)
+    
+    plt.title(title, fontsize=20, weight='bold', pad=20)
+    plt.xlabel(t['target'], fontsize=14)
+    plt.ylabel(t['model'], fontsize=14)
+    plt.xticks(rotation=0)
+    plt.yticks(rotation=0)
+
+    save_path = os.path.join(FIGURES_SAVE_PATH, filename)
+    plt.savefig(save_path, dpi=HIGH_DPI, bbox_inches='tight')
+    plt.close()
+    print(f"Saved performance heatmap to: {save_path}")
 
 def main():
     print("--- Starting Results Visualization ---")
@@ -204,6 +288,40 @@ def main():
     # 中文总览图
     plot_grouped_overall(df, 'grouped_accuracy_title', 'overall_accuracy_grouped_zh.png', lang='zh')
     plot_grouped_overall(df, 'grouped_f1_title', 'overall_f1_score_grouped_zh.png', lang='zh', y='f1-score (macro)')
+    
+    # --- 1. 生成新的双指标对比图 ---
+    for target in df['target'].unique():
+        df_target = df[df['target'] == target]
+        # 英文版
+        plot_dual_metric_comparison(
+            df_target,
+            f'Dual Metric Comparison: {target.capitalize()}',
+            f'dual_metric_{target}.png',
+            lang='en'
+        )
+        # 中文版
+        plot_dual_metric_comparison(
+            df_target,
+            f'双指标对比: {target.capitalize()}',
+            f'dual_metric_{target}_zh.png',
+            lang='zh'
+        )
+
+    # --- 2. 生成新的性能热力图 ---
+    # 英文版
+    plot_performance_heatmap(
+        df,
+        'Model Performance Heatmap (F1-Score)',
+        'performance_heatmap.png',
+        lang='en'
+    )
+    # 中文版
+    plot_performance_heatmap(
+        df,
+        '模型性能热力图 (F1分数)',
+        'performance_heatmap_zh.png',
+        lang='zh'
+    )
 
     print("\n--- Visualization complete. Figures saved to 'reports/figures/'. ---")
 

@@ -22,25 +22,72 @@
 
 ```mermaid
 graph TD
-    subgraph "Phase 1: 数据与特征工程"
-        A[原始音频数据 a/sounds] --> B(dataset.py: 解析路径与多维标签);
-        B --> C(feature_extractor.py: 提取MFCC);
-        C --> D[特征与标签文件 a/data/features];
+    subgraph "Phase 1: 数据准备与解析"
+        A["<fa:fa-folder-open> 原始音频数据<br/>(sounds/)"] --> B("
+            <fa:fa-cogs> <b>dataset.py</b><br/>
+            - 汇总所有音频路径<br/>
+            - 从文件名解析标签<br/>
+            - 划分训练/测试集
+        ");
     end
 
-    subgraph "Phase 2: 模型训练"
-        direction LR
-        D --> E1(train.py: 训练传统模型);
-        B --> E2(train_ast.py: 微调AST模型);
-        E1 & E2 --> F[保存模型 a/trained_models];
+    subgraph "Phase 2: 两种并行的训练流程"
+        subgraph "A. 传统模型流程"
+            direction TB
+            B -- "提供文件路径" --> C("
+                <fa:fa-calculator> <b>feature_extractor.py</b><br/>
+                提取MFCC特征
+            ");
+            C --> D["<fa:fa-database> 特征文件 (.npy)<br/>(data/features/)"];
+            D --> E1("
+                <fa:fa-tree> <b>train.py</b><br/>
+                训练RF, XGBoost等
+            ");
+        end
+
+        subgraph "B. 深度学习流程"
+            direction TB
+            B -- "提供文件路径" --> E2("
+                <fa:fa-brain> <b>train_ast.py</b><br/>
+                实时处理音频<br/>
+                微调AST模型
+            ");
+            B -- "提供文件路径" --> E3("
+                <fa:fa-headphones> <b>train_passt.py</b><br/>
+                实时处理双声道音频<br/>
+                微调PaSST模型
+            ");
+        end
     end
 
-    subgraph "Phase 3: 综合评估"
-        D & B & F --> G(evaluate.py: 加载数据与模型);
-        G --> H[生成评估报告 a/reports];
-        G --> I[生成混淆矩阵 a/reports/figures];
+    subgraph "Phase 3: 模型产出与评估"
+        F["<fa:fa-archive> 保存所有模型<br/>(trained_models/)"];
+        E1 --> F;
+        E2 --> F;
+        E3 --> F;
+        
+        G("
+            <fa:fa-chart-bar> <b>evaluate.py</b><br/>
+            综合评估所有模型
+        ");
+        F -- "加载已存模型" --> G;
+        D -- "加载测试特征" --> G;
+        B -- "加载测试集路径" --> G;
+        
+        G --> H["<fa:fa-file-csv> 评估报告<br/>(reports/)"];
+        G --> I["<fa:fa-images> 可视化图表<br/>(reports/figures/)"];
     end
 ```
+
+### 1.3. 数据集划分策略
+
+我们的项目采用**带分层的随机抽样（Stratified Random Sampling）**策略来划分数据集，确保了模型评估的公正性和可靠性。
+
+1.  **数据汇总**：首先，脚本会忽略`sounds/`目录下的`gun_sound_train`和`gun_sound_test`子目录结构，将所有音频文件汇集成一个统一的数据池。
+2.  **按比例划分**：然后，根据`config.py`中定义的`TEST_SIZE`（默认为20%），将整个数据池划分为训练集和测试集。
+3.  **动态分层抽样**：在划分过程中，我们以**预测目标**作为分层依据。这意味着，划分后的**训练集和测试集将保持与原始数据集中完全相同的预测对象类别比例**。这种策略有效避免了因纯随机划分可能导致的某些稀有类别在测试集中缺失的问题。这个分层依据可以根据当前训练任务（`weapon`, `distance`, `direction`）进行动态调整，以获得针对特定任务的最优数据分布。
+
+这种科学的划分方法保证了模型在具有代表性的数据上进行训练，并在同样具有代表性的数据上进行评估。
 
 ## 2. 环境设置
 
@@ -210,7 +257,7 @@ python -m src.sound_recognition.evaluate
 *   **尝试新的深度学习模型**: 您可以参考`train_ast.py`和`train_passt.py`的结构，创建一个新的训练脚本，加载Hugging Face Hub上的其他音频模型或进行更复杂的模型改造。
 
 ---
-## 7. 附录: `train_passt.py` 深度解析
+## 7. `train_passt.py` 解析
 
 本节详细说明了 `train_passt.py` 脚本的功能、架构设计、核心逻辑以及使用方法。
 
@@ -285,14 +332,7 @@ model.net.patch_embed.proj = new_conv
     1.  `pytorch_model.bin`: 模型的权重文件（仅包含 Transformer 部分，不包含预处理层权重，因为预处理是固定的）。
     2.  `classes.txt`: 类别名称列表（纯文本），用于推理时将 ID 映射回标签。
 
-### 7.4. 常见问题排查
+### 7.4. 常见问题
 
 1.  **Warning: Input image size (...) doesn't match model**
-    *   **状态**：正常。
     *   **原因**：因为使用了动态填充，输入的频谱图长度不一定是标准的 998 帧。模型会自动裁剪位置编码，不影响训练。
-
-2.  **RuntimeError: CUDA out of memory**
-    *   **解决**：尝试减小 `per_device_train_batch_size`（代码中默认为 4，可改为 2）。
-
-3.  **UserWarning: stft with return_complex=False is deprecated**
-    *   **状态**：正常。这是 PyTorch 库内部对旧版 STFT 接口的警告，不影响计算结果。
