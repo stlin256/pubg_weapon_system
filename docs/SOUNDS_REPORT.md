@@ -31,7 +31,7 @@
 
 在对所有模型进行完整训练和评估后，我们得到了清晰的、数据驱动的性能排序。下图直观地展示了所有模型在三个目标类别上的准确率表现。
 
-![模型总准确率对比](reports/figures/overall_accuracy_grouped_zh.png)
+![模型总准确率对比](../reports/figures/overall_accuracy_grouped_zh.png)
 
 ### 核心发现
 
@@ -51,7 +51,7 @@
 
 | 武器识别对比 | 距离识别对比 | 方向识别对比 |
 | :---: | :---: | :---: |
-| ![武器识别模型对比](reports/figures/all_models_weapon_zh.png) | ![距离识别模型对比](reports/figures/all_models_distance_zh.png) | ![方向识别模型对比](reports/figures/all_models_direction_zh.png) |
+| ![武器识别模型对比](../reports/figures/all_models_weapon_zh.png) | ![距离识别模型对比](../reports/figures/all_models_distance_zh.png) | ![方向识别模型对比](../reports/figures/all_models_direction_zh.png) |
 
 ### 性能洞察
 
@@ -61,7 +61,7 @@
 
 下图以热力图的形式，直观地展示了所有模型在三个不同任务上的**F1分数**。颜色的亮度与性能正相关（越亮表示性能越好）。
 
-![模型性能热力图 (F1分数)](reports/figures/performance_heatmap_zh.png)
+![模型性能热力图 (F1分数)](../reports/figures/performance_heatmap_zh.png)
 
 *   **图表解读**：从图中可以清晰地看到，`passt` 和 `ast` 两个模型在所有任务上都处于最亮的（性能最优）区间。与之形成鲜明对比的是，`SVM` 和 `KNN` 模型在 `weapon` 任务上的表现处于深色区域，表明它们在该任务上性能较差。这张图对于快速识别出在特定任务上的优势模型和劣势模型非常有效。
 
@@ -83,8 +83,8 @@
             <td align="center" width="60%"><strong>双指标对比图</strong></td>
         </tr>
         <tr>
-            <td align="center"><img src="reports/figures/cm_passt_weapon_weapon.png" alt="PaSST 武器识别混淆矩阵" width="100%"></td>
-            <td align="center"><img src="reports/figures/dual_metric_weapon_zh.png" alt="PaSST 武器识别双指标图" width="100%"></td>
+            <td align="center"><img src="../reports/figures/cm_passt_weapon_weapon.png" alt="PaSST 武器识别混淆矩阵" width="100%"></td>
+            <td align="center"><img src="../reports/figures/dual_metric_weapon_zh.png" alt="PaSST 武器识别双指标图" width="100%"></td>
         </tr>
         <tr>
             <td colspan="2" align="left"><strong>分析</strong>：在武器识别任务上，PaSST的表现近乎完美。从混淆矩阵可以看出，绝大多数样本都被正确分类，几乎没有误判。双指标图也显示其准确率和F1分数均达到了0.998，性能卓越。</td>
@@ -106,8 +106,8 @@
             <td align="center" width="60%"><strong>双指标对比图</strong></td>
         </tr>
         <tr>
-            <td align="center"><img src="reports/figures/cm_passt_distance_distance.png" alt="PaSST 距离识别混淆矩阵" width="100%"></td>
-            <td align="center"><img src="reports/figures/dual_metric_distance_zh.png" alt="PaSST 距离识别双指标图" width="100%"></td>
+            <td align="center"><img src="../reports/figures/cm_passt_distance_distance.png" alt="PaSST 距离识别混淆矩阵" width="100%"></td>
+            <td align="center"><img src="../reports/figures/dual_metric_distance_zh.png" alt="PaSST 距离识别双指标图" width="100%"></td>
         </tr>
         <tr>
             <td colspan="2" align="left"><strong>分析</strong>：在距离识别任务上，PaSST同样表现出色。混淆矩阵显示对角线非常清晰，仅有极少数的样本被误判到相邻的距离类别中，这符合现实中的听觉误差。</td>
@@ -129,8 +129,8 @@
             <td align="center" width="60%"><strong>双指标对比图</strong></td>
         </tr>
         <tr>
-            <td align="center"><img src="reports/figures/cm_passt_direction_final_direction.png" alt="PaSST 方向识别混淆矩阵" width="100%"></td>
-            <td align="center"><img src="reports/figures/dual_metric_direction_zh.png" alt="PaSST 方向识别双指标图" width="100%"></td>
+            <td align="center"><img src="../reports/figures/cm_passt_direction_final_direction.png" alt="PaSST 方向识别混淆矩阵" width="100%"></td>
+            <td align="center"><img src="../reports/figures/dual_metric_direction_zh.png" alt="PaSST 方向识别双指标图" width="100%"></td>
         </tr>
         <tr>
             <td colspan="2" align="left"><strong>分析</strong>：方向识别是最具挑战性的任务，PaSST在此任务上的表现进一步凸显了其优势。虽然相比其他任务混淆矩阵中的误判稍多，但绝大多数预测仍然集中在正确的类别上。双指标图显示其准确率（0.916）和F1分数（0.892）远高于其他所有模型，证明了双声道改造带来的巨大提升。</td>

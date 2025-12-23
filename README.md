@@ -8,10 +8,10 @@
 
 本文档是项目的**快速指南**。为了更深入地了解特定模块，请参阅以下专业文档：
 
-*   **[模型成果报告](SOUNDS_REPORT.md)**: 查看我们最终的模型性能对比、数据分析和项目结论。
-*   **[模型训练指南](sounds_model_GUIDE.md)**: 了解如何设置环境、训练和评估所有模型。
-*   **[Web应用技术文档](WEAPON_SYSTEM_GUIDE.md)**: 了解Web应用的架构和运行方式。
-*   **[项目常见问答](PROJECT_QA.md)**: 查阅使用LLM生成的项目QA。
+*   **[模型成果报告](docs/SOUNDS_REPORT.md)**: 查看我们最终的模型性能对比、数据分析和项目结论。
+*   **[模型训练指南](docs/sounds_model_GUIDE.md)**: 了解如何设置环境、训练和评估所有模型。
+*   **[Web应用技术文档](docs/WEAPON_SYSTEM_GUIDE.md)**: 了解Web应用的架构和运行方式。
+*   **[项目常见问答](docs/PROJECT_QA.md)**: 查阅使用LLM生成的项目QA。
 *   **[课程设计报告](tex/main.pdf)**: 查看《程序设计基础》课程期末报告。
 
 ---

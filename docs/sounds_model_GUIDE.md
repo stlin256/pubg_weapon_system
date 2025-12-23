@@ -251,7 +251,7 @@ python -m src.sound_recognition.evaluate
 
 脚本执行完成后，您将看到所有模型的最终评估报告。如果您运行的是 `all_train_and_eval.sh`，其最终输出将如下图所示，包含了总运行时间。完整的报告会自动保存到 `reports/evaluation_results.csv`。
 
-![all_train_and_eval.sh 脚本执行结果](imgs/train_and_eval.png)
+![all_train_and_eval.sh 脚本执行结果](../imgs/train_and_eval.png)
 
 
 ## 6. 如何扩展

@@ -30,11 +30,11 @@
 **A:** 我们在训练，特别是深度学习模型时，并非盲目地追求训练集上的最高准确率，而是采取了多种策略来提升模型的**泛化能力**，防止其在未见过的数据上表现不佳。
 
 1.  **独立的、带分层的测试集 (最重要的措施):**
-    *   **实现：** 在 [`src/sound_recognition/dataset.py`](src/sound_recognition/dataset.py) 中，我们使用 `train_test_split` 并设置了 `stratify` 参数，从一开始就预留了一部分数据（默认为20%）作为**从未参与训练**的最终测试集。
+    *   **实现：** 在 [`../src/sound_recognition/dataset.py`](../src/sound_recognition/dataset.py) 中，我们使用 `train_test_split` 并设置了 `stratify` 参数，从一开始就预留了一部分数据（默认为20%）作为**从未参与训练**的最终测试集。
     *   **作用：** 这是防止过拟合的**黄金标准**。模型的好坏，最终由它在这个“期末考试”数据集（测试集）上的表现来评判，而不是它在“平时作业”（训练集）上的表现。
 
 2.  **验证集上的早停与最优模型选择 (Early Stopping & Best Model Checkpointing):**
-    *   **实现：** 在 [`src/sound_recognition/train_passt.py`](src/sound_recognition/train_passt.py) 的 `TrainingArguments` 中，我们设置了 `evaluation_strategy="epoch"` 和 `load_best_model_at_end=True`。
+    *   **实现：** 在 [`../src/sound_recognition/train_passt.py`](../src/sound_recognition/train_passt.py) 的 `TrainingArguments` 中，我们设置了 `evaluation_strategy="epoch"` 和 `load_best_model_at_end=True`。
     *   **作用：** 这意味着在训练过程中，模型**每完成一轮 (epoch) 训练，就会在验证集（即测试集）上进行一次评估**。`Trainer` 会持续监控验证集上的性能（我们指定了 `metric_for_best_model="accuracy"`），并只保存那个在**验证集上表现最好**的模型状态。即使模型在后期继续训练导致过拟合（训练集分数上升，验证集分数下降），我们最终加载并保存的依然是之前那个在验证集上表现最优的模型。这是一种隐式的**早停（Early Stopping）**策略。
 
 3.  **权重衰减 (Weight Decay):**
@@ -58,14 +58,14 @@
 **详细解释如下：**
 
 1.  **并发处理能力：**
-    *   **现状：** 我们在 [`run.py`](run.py) 中使用的是 `app.run()`，这会启动Flask内置的一个**开发服务器 (Development Server)**。根据Flask官方文档，这个服务器是**单进程、单线程**的，它一次只能处理一个请求。当一个用户的音频正在被识别时，其他所有用户的请求都会被阻塞，必须排队等待。
+    *   **现状：** 我们在 [`../run.py`](../run.py) 中使用的是 `app.run()`，这会启动Flask内置的一个**开发服务器 (Development Server)**。根据Flask官方文档，这个服务器是**单进程、单线程**的，它一次只能处理一个请求。当一个用户的音频正在被识别时，其他所有用户的请求都会被阻塞，必须排队等待。
     *   **后果：** 如果全班同学（假设30人）同时点击“识别”，将导致极差的用户体验和大量的请求超时。
     *   **解决方案 (工业级)：** 在生产环境中，我们绝不会直接使用 `app.run()`。而是会将Flask应用通过 **WSGI (Web Server Gateway Interface)** 协议，部署到一个真正的应用服务器上，例如 **Gunicorn** 或 **uWSGI**。例如，使用Gunicorn，启动命令会变成 `gunicorn --workers 4 --bind 0.0.0.0:5000 run:app`。这里的 `--workers 4` 会启动4个并行的工作进程，使得服务器能**同时处理4个请求**，并发能力大大提升。
 
 2.  **显存问题：**
     *   **风险点：** 显存的压力主要来自两方面：**缓存的模型数量**和**同时处理的推理请求数量**。
     *   **缓存策略的影响 (`all` vs `selected`)：**
-        *   如果缓存策略是 `all`，服务启动时 [`app/inference_service.py`](app/inference_service.py) 会将**所有**发现的模型都加载到显存中。如果模型很多、很大，**仅这一步就有可能导致显存溢出**。
+        *   如果缓存策略是 `all`，服务启动时 [`../app/inference_service.py`](../app/inference_service.py) 会将**所有**发现的模型都加载到显存中。如果模型很多、很大，**仅这一步就有可能导致显存溢出**。
         *   如果策略是 `selected`，则只有被请求过的模型才会被加载，显存压力会随请求逐步增加。
     *   **并发请求的影响：**
         *   假设我们已经用了Gunicorn并启动了4个worker。如果这4个worker**同时**接到对**不同**模型的推理请求，那么系统会尝试在显存中同时加载并运行这4个模型，每个模型都会占用一定的显存，叠加起来极易导致 `CUDA out of memory` 错误。
@@ -76,7 +76,7 @@
 
 **A:** 这是一个很好的问题，它触及了我们当前设计的局限性。
 
-*   **现状承认：** 当前在 [`models.py`](models.py) 中定义的 `Weapon` 类，其主要作用是作为一个**数据类 (Data Class)**，它封装了武器的通用属性（如名称、伤害、弹药等），并提供了一些基础方法（如 `to_dict`）。它确实**没有利用到多态性**来处理不同类型武器的特殊行为。如果现在要加入“手雷”这样的范围伤害武器，直接修改 `Weapon` 类或在业务逻辑中加入大量的 `if/else` 判断，都违背了面向对象的开闭原则，是一种糟糕的设计。
+*   **现状承认：** 当前在 [`../models.py`](../models.py) 中定义的 `Weapon` 类，其主要作用是作为一个**数据类 (Data Class)**，它封装了武器的通用属性（如名称、伤害、弹药等），并提供了一些基础方法（如 `to_dict`）。它确实**没有利用到多态性**来处理不同类型武器的特殊行为。如果现在要加入“手雷”这样的范围伤害武器，直接修改 `Weapon` 类或在业务逻辑中加入大量的 `if/else` 判断，都违背了面向对象的开闭原则，是一种糟糕的设计。
 
 *   **改进方案 (体现多态)：** 一个标准的面向对象设计应该这样做：
     1.  将当前的 `Weapon` 类重构为一个**抽象基类 (Abstract Base Class)**，在其中定义所有武器共有的接口，例如 `calculate_damage(target_location, hit_location)`。
@@ -91,7 +91,7 @@
 
 **A:** 这个问题非常专业，直接关系到大规模应用中的性能。
 
-*   **现状承认：** 我们在 [`models.py`](models.py) 的 `Weapon` 和 `Player` 类中，**并未使用 `__slots__`**。这意味着Python会为每个 `Weapon` 和 `Player` 的实例创建一个 `__dict__` 字典来存储其属性。
+*   **现状承认：** 我们在 [`../models.py`](../models.py) 的 `Weapon` 和 `Player` 类中，**并未使用 `__slots__`**。这意味着Python会为每个 `Weapon` 和 `Player` 的实例创建一个 `__dict__` 字典来存储其属性。
 *   **影响分析：** `__dict__` 确实会带来内存开销。它的优点是允许在运行时动态地向实例添加新属性，但代价是每个实例都需要维护一个字典对象，占用的内存比仅仅存储属性值要多。如果我们需要在内存中同时加载成千上万个 `Weapon` 实例，这部分累积的内存浪费将变得不可忽视。
 *   **何时使用 `__slots__`：** `__slots__` 是一种内存优化技术，它通过一个固定大小的元组来代替 `__dict__` 存储属性，从而显著减少每个实例的内存占用。它的代价是实例的属性集在定义类时就被固定下来，不能再动态增删。
 *   **项目权衡：** 在本项目的当前场景下，一个用户持有的武器数量有限，系统同时在线的用户也并非海量，因此 `__dict__` 带来的内存开销尚在可接受范围内。但在需要处理海量对象的场景下，如果一个类的属性是固定的，那么使用 `__slots__` 无疑是更优的实践。我们认识到这一点，并在未来的性能优化阶段会将其纳入考虑。
@@ -100,7 +100,7 @@
 
 **A:** 这是一个关于代码健壮性的重要问题。
 
-*   **现状分析：** 在 [`app/services.py`](app/services.py) 的 `WeaponService._load_iw` 方法中，我们使用了 `pd.read_excel()` 来读取数据。在后续的数据处理中，我们通过 `int()` 和 `str()` 对列进行了强制类型转换。
+*   **现状分析：** 在 [`../app/services.py`](../app/services.py) 的 `WeaponService._load_iw` 方法中，我们使用了 `pd.read_excel()` 来读取数据。在后续的数据处理中，我们通过 `int()` 和 `str()` 对列进行了强制类型转换。
 *   **健壮性评估：**
     *   **优点：** 使用 `pandas` 本身已经比手动解析提供了更高的健壮性。
     *   **缺点：** 当前的代码**没有显式地对 `pd.read_excel()` 和后续的类型转换操作进行 `try-except` 异常捕获**。如果Excel中的某个单元格被恶意或无意地修改为完全无法被 `int()` 转换的格式（例如，一个纯文本字符串 'abc'），在实例化 `Weapon` 对象时确实**会抛出 `ValueError`，并可能导致服务启动失败**。
@@ -124,23 +124,23 @@
 
 **A:** 这是对音频特征理解深度的考察。
 
-*   **维度选择 (`n_mfcc`)：** MFCC的维度是一个超参数。在 [`src/sound_recognition/feature_extractor.py`](src/sound_recognition/feature_extractor.py) 中，我们将其设为 `13`。选择13维（或20维、40维）并没有绝对的金标准，它取决于具体的任务和数据集。
+*   **维度选择 (`n_mfcc`)：** MFCC的维度是一个超参数。在 [`../src/sound_recognition/feature_extractor.py`](../src/sound_recognition/feature_extractor.py) 中，我们将其设为 `13`。选择13维（或20维、40维）并没有绝对的金标准，它取决于具体的任务和数据集。
     *   **13维**是语音识别领域的传统选择，因为它被证明足以捕捉区分音素的关键信息。
     *   对于非语音的音频事件（如枪声），有时会选择更高的维度（如20或40）来捕捉更丰富的频谱细节。
     *   在本项目中，我们采用了**13维**作为起点，这是一个在音频识别中被广泛验证过的、效果与计算成本较为均衡的合理选择。
 *   **第0个倒谱系数 (C0)：**
     *   **物理含义：** C0 代表了音频帧的**对数能量**，可以粗略地理解为**音量**的大小。它反映的是信号的整体幅度，而不是频谱的形状。
     *   **是否移除：** 在很多场景下，**C0是需要被移除或者单独处理的**。因为音量会受到录音距离、设备增益等多种与“音色”无关的因素影响，它可能会成为噪声。此外，它的数值范围通常远大于其他系数，如果不做处理，会在距离类的模型中（如KNN）占据主导地位。
-    *   **本项目处理：** 在我们的 [`src/sound_recognition/feature_extractor.py`](src/sound_recognition/feature_extractor.py) 中，我们使用了 `librosa.feature.mfcc` 的默认参数，**它默认会返回包括C0在内的所有系数**。我们**没有显式地移除C0**。这是一个可以优化的点。更严谨的做法是在提取特征后，要么舍弃第0列，要么对其进行独立的归一化处理。
+    *   **本项目处理：** 在我们的 [`../src/sound_recognition/feature_extractor.py`](../src/sound_recognition/feature_extractor.py) 中，我们使用了 `librosa.feature.mfcc` 的默认参数，**它默认会返回包括C0在内的所有系数**。我们**没有显式地移除C0**。这是一个可以优化的点。更严谨的做法是在提取特征后，要么舍弃第0列，要么对其进行独立的归一化处理。
 
 ### Q7: 如何处理不同采样率的音频输入？重采样（Resample）在哪里实现？
 
 **A:** 这是一个在音频AI中极易被忽视但至关重要的细节。
 
-*   **采样率设定：** 我们在 [`app/inference_service.py`](app/inference_service.py) 和 [`src/sound_recognition/feature_extractor.py`](src/sound_recognition/feature_extractor.py) 中，都明确地使用了 `librosa.load` 并指定了目标采样率，例如 `sr=SAMPLING_RATE` (PaSST模型则是 `sr=32000`)。
+*   **采样率设定：** 我们在 [`../app/inference_service.py`](../app/inference_service.py) 和 [`../src/sound_recognition/feature_extractor.py`](../src/sound_recognition/feature_extractor.py) 中，都明确地使用了 `librosa.load` 并指定了目标采样率，例如 `sr=SAMPLING_RATE` (PaSST模型则是 `sr=32000`)。
 *   **重采样实现：** **重采样是在 `librosa.load` 函数内部自动完成的**。当我们调用 `librosa.load(path, sr=16000)` 时，`librosa` 会首先检查原始音频文件的采样率。如果它不是16kHz（例如是44.1kHz），`librosa` 会在加载过程中**自动进行高质量的重采样**，确保我们得到的 `audio` numpy数组的采样率**永远**是我们指定的 `sr` 值。
 *   **代码定位：**
-    *   对于传统模型和AST，这行代码在 [`app/inference_service.py`](app/inference_service.py) 的 `predict` 方法中：`audio, sr = librosa.load(audio_path, sr=SAMPLING_RATE, ...)`。
+    *   对于传统模型和AST，这行代码在 [`../app/inference_service.py`](../app/inference_service.py) 的 `predict` 方法中：`audio, sr = librosa.load(audio_path, sr=SAMPLING_RATE, ...)`。
     *   对于PaSST模型，在同一方法中：`speech, sr = librosa.load(audio_path, sr=32000, ...)`。
     *   这确保了无论用户上传何种采样率的音频，输入到我们模型的永远是训练时所用的标准采样率，避免了频谱错位的问题。
 
@@ -148,7 +148,7 @@
 
 **A:** 这是一个关乎服务器安全的核心问题。
 
-*   **现状承认：** 我们目前在 [`app/routes.py`](app/routes.py) 的 `recognize_sound` 接口中，主要依赖了 `werkzeug.utils.secure_filename` 函数来处理文件名。
+*   **现状承认：** 我们目前在 [`../app/routes.py`](../app/routes.py) 的 `recognize_sound` 接口中，主要依赖了 `werkzeug.utils.secure_filename` 函数来处理文件名。
 *   **安全性评估：**
     *   `secure_filename` 的主要作用是**过滤掉文件名中的特殊字符和路径信息**（如 `../../`），防止路径遍历攻击。它**不能**检查文件内容或后缀名。
     *   我们**没有检查文件的后缀名**，更**没有读取文件的Magic Number（文件头）**来验证其MIME类型。
@@ -170,7 +170,7 @@
     *   `dim=1` 正是**通道 (Channels) 维度**。`torch.cat([spec_left, spec_right], dim=1)` 的操作，就是将这两个单通道的“图片”堆叠起来，形成一个 `[Batch, 2, Freq, Time]` 的、拥有两个通道的“图片”。这完全符合 `nn.Conv2d` 对输入格式的要求，也是将双声道信息正确传递给模型的第一步。
 *   **交换左右声道会怎样：**
     *   **理论上：** 如果模型真正学到了双耳时间差（ITD）和强度差（ILD）等空间线索，那么**交换左右声道，模型预测出的方向应该呈现镜像对称的反转**。例如，原本预测为 `left` 的，现在应该预测为 `right`；原本预测为 `front` 或 `back` 的，则可能保持不变。
-    *   **能否立即演示：** **是的，可以。** 在 [`app/inference_service.py`](app/inference_service.py) 的 `predict` 方法中，针对 `passt` 模型的部分，我们可以在 `torch.from_numpy` 之后，加入一行 `torch.flip` 或索引操作即可：
+    *   **能否立即演示：** **是的，可以。** 在 [`../app/inference_service.py`](../app/inference_service.py) 的 `predict` 方法中，针对 `passt` 模型的部分，我们可以在 `torch.from_numpy` 之后，加入一行 `torch.flip` 或索引操作即可：
         ```python
         # In inference_service.py -> predict() for passt
         inputs = torch.from_numpy(speech.astype(np.float32)).unsqueeze(0).to(device)
@@ -220,7 +220,7 @@
 
 **A:** 这是一个关于系统安全的关键问题，也是区分“玩具加密”和“真实安全”的分水岭。
 
-*   **现状分析：** 在 [`app/services.py`](app/services.py) 中，`load_key` 函数直接从项目根目录下的 `secret.key` 文件中读取密钥。
+*   **现状分析：** 在 [`../app/services.py`](../app/services.py) 中，`load_key` 函数直接从项目根目录下的 `secret.key` 文件中读取密钥。
 *   **安全性评估：**
     *   **优点：** 相比于将密钥**硬编码（Hardcode）**在Python代码里，从文件中读取是一个进步。它实现了配置与代码的分离。
     *   **重大缺陷：** `secret.key` 文件是**以明文形式直接存储在代码仓库中**的。任何能够访问我们Git仓库的人，都能直接获取到这个密钥，从而解密所有的用户数据。这在安全实践中是一个**严重漏洞**。
@@ -238,8 +238,8 @@
 
 *   **问题分析：** 提问是正确的，Flask的 `jsonify` 函数在底层使用的是Python标准的 `json` 模块，它**原生不支持** NumPy的特定数据类型，如 `np.float32` 或 `np.int64`。如果一个API视图函数直接返回了包含这些类型的数据结构，将会抛出 `TypeError`。
 *   **本项目现状：** 幸运的是，在我们的项目中，**我们巧妙地规避了这个问题**。
-    *   在 [`app/routes.py`](app/routes.py) 的 `/api/recognize` 接口中，模型 `predict` 方法的返回值是一个**Python原生的字符串**（例如 `'ak'`），而不是NumPy类型。
-    *   在 `/api/weapons` 接口中，我们返回的是 `player.to_dict()` 的结果，而在 [`models.py`](models.py) 的 `to_dict` 方法中，我们已经通过 `float()` 和 `int()` 将所有属性都转换为了**Python原生数据类型**。
+    *   在 [`../app/routes.py`](../app/routes.py) 的 `/api/recognize` 接口中，模型 `predict` 方法的返回值是一个**Python原生的字符串**（例如 `'ak'`），而不是NumPy类型。
+    *   在 `/api/weapons` 接口中，我们返回的是 `player.to_dict()` 的结果，而在 [`../models.py`](../models.py) 的 `to_dict` 方法中，我们已经通过 `float()` 和 `int()` 将所有属性都转换为了**Python原生数据类型**。
     *   在 `/api/benchmark` 接口中，我们使用了 `pandas` 的 `to_dict(orient='records')` 方法，该方法在序列化时也会**自动将NumPy数值类型转换为Python原生类型**。
 *   **更优雅的通用方案：** 虽然我们目前没有遇到问题，但一个更具扩展性的“优雅”方案是创建一个自定义的 `JSONEncoder`。
     ```python
@@ -263,7 +263,7 @@
 
 **A:** 这是一个考察加密学实践细节的专业问题。
 
-*   **现状分析：** 我们在 [`app/services.py`](app/services.py) 的 `SecurityService` 中，明确使用了 `AES.MODE_GCM`。
+*   **现状分析：** 我们在 [`../app/services.py`](../app/services.py) 的 `SecurityService` 中，明确使用了 `AES.MODE_GCM`。
 *   **模式选择 (GCM):**
     *   **回答：** 我们选用的是 **GCM (Galois/Counter Mode)** 模式。
     *   **优势：** GCM是一种**认证加密模式 (AEAD)**，它在实现加密的同时，还能生成一个**认证标签 (Tag)**。在解密时，需要同时验证密文和认证标签，这使得GCM不仅能保证**机密性**，还能保证**完整性**和**真实性**，可以有效抵御篡改攻击。它远比过时的ECB模式和需要手动处理Padding的CBC模式更安全、更现代。
@@ -281,10 +281,10 @@
 
 *   **问题背景：** Transformer模型由于其内部结构（特别是位置编码），要求输入序列的长度是固定的。而我们的音频样本长度各不相同，因此必须进行长度对齐。
 *   **AST模型处理：**
-    *   **实现：** 对于AST模型，我们在 [`src/sound_recognition/dataset.py`](src/sound_recognition/dataset.py) 的 `AudioDataset.__getitem__` 中，直接利用了Hugging Face `feature_extractor` 的内置功能：`inputs = self.feature_extractor(speech, ..., padding="max_length", ...)`。
+    *   **实现：** 对于AST模型，我们在 [`../src/sound_recognition/dataset.py`](../src/sound_recognition/dataset.py) 的 `AudioDataset.__getitem__` 中，直接利用了Hugging Face `feature_extractor` 的内置功能：`inputs = self.feature_extractor(speech, ..., padding="max_length", ...)`。
     *   **策略：** `padding="max_length"` 参数会自动将所有音频样本**填充（Padding）**或**截断（Truncation）**到模型预设的最大长度（对于AST通常是约10秒）。填充时默认使用**零填充 (Zero-padding)**，截断时默认**截断尾部**。
 *   **PaSST模型处理 (更精细)：**
-    *   **实现：** 对于我们自定义的PaSST模型，我们在 [`src/sound_recognition/train_passt.py`](src/sound_recognition/train_passt.py) 中实现了一个自定义的 `StereoDataCollator` 类，它在构建Batch时进行**动态填充 (Dynamic Padding)**。
+    *   **实现：** 对于我们自定义的PaSST模型，我们在 [`../src/sound_recognition/train_passt.py`](../src/sound_recognition/train_passt.py) 中实现了一个自定义的 `StereoDataCollator` 类，它在构建Batch时进行**动态填充 (Dynamic Padding)**。
     *   **策略：**
         1.  **强制截断 (Truncation)：** 首先，我们会检查音频时长，如果超过10秒（PaSST模型的最大输入限制），会**从尾部进行截断**。
         2.  **动态填充 (Padding)：** 在一个Batch内部，我们会找到最长的音频样本，然后将该Batch内所有其他较短的样本**用零填充到与最长样本相同的长度**。
@@ -295,7 +295,7 @@
 **A:** 这是一个非常深刻且在学术界和工业界都极易被忽视的高级问题。
 
 *   **问题核心：** 如果从同一段长录音中切分出的多个片段，被分别划分到了训练集和测试集中，那么模型在测试这些片段时，实际上是在一个“半见过”的数据上进行评估。它可能只是因为记住了这段录音独特的背景噪音或环境特征而做出了正确预测，而不是真正学会了识别枪声本身。这会导致我们在**测试集上看到的性能指标，会远高于模型在真实新数据上的表现**，造成“虚假繁荣”。
-*   **现状承认：** 我们在 [`src/sound_recognition/dataset.py`](src/sound_recognition/dataset.py) 的 `get_data_splits` 函数中，是直接对**所有独立的音频文件路径**列表进行 `train_test_split` 的。我们**没有**根据“原始录音Session”或任何能够标识音频片段来源的分组ID来进行**分组划分 (Group Split)**。
+*   **现状承认：** 我们在 [`../src/sound_recognition/dataset.py`](../src/sound_recognition/dataset.py) 的 `get_data_splits` 函数中，是直接对**所有独立的音频文件路径**列表进行 `train_test_split` 的。我们**没有**根据“原始录音Session”或任何能够标识音频片段来源的分组ID来进行**分组划分 (Group Split)**。
 *   **结论：** **是的，当前的数据划分方式存在数据泄露的风险。** 我们无法保证来自同一段原始录音的切片不会同时出现在训练集和测试集中。这是一个**严重的方法论缺陷**，可能会导致我们对模型性能的评估过于乐观。
 *   **改进方案 (正确做法)：**
     1.  **获取分组信息：** 首先，我们需要一种方法来识别哪些音频切片来源于同一段录音。这通常需要原始数据提供类似 `session_id` 或 `original_filename` 这样的元信息。

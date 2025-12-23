@@ -144,9 +144,9 @@ graph TD
     </thead>
     <tbody>
         <tr>
-            <td align="center"><img src="imgs/webpage.png" alt="PC端用户武器库界面" width="100%"></td>
-            <td align="center"><img src="imgs/webpage3.png" alt="PC端枪声识别界面" width="100%"></td>
-            <td align="center"><img src="imgs/webpage2.png" alt="PC端管理面板界面" width="100%"></td>
+            <td align="center"><img src="../imgs/webpage.png" alt="PC端用户武器库界面" width="100%"></td>
+            <td align="center"><img src="../imgs/webpage3.png" alt="PC端枪声识别界面" width="100%"></td>
+            <td align="center"><img src="../imgs/webpage2.png" alt="PC端管理面板界面" width="100%"></td>
         </tr>
     </tbody>
 </table>
@@ -166,10 +166,10 @@ graph TD
     </thead>
     <tbody>
         <tr>
-            <td align="center"><img src="imgs/webpage_mobile_login.png" alt="移动端登录界面" width="100%"></td>
-            <td align="center"><img src="imgs/webpage_mobile_dashboard.png" alt="移动端武器库界面" width="100%"></td>
-            <td align="center"><img src="imgs/webpage_mobile_dashboard2.png" alt="移动端枪声识别界面" width="100%"></td>
-            <td align="center"><img src="imgs/webpage_mobile_admin.png" alt="移动端管理面板" width="100%"></td>
+            <td align="center"><img src="../imgs/webpage_mobile_login.png" alt="移动端登录界面" width="100%"></td>
+            <td align="center"><img src="../imgs/webpage_mobile_dashboard.png" alt="移动端武器库界面" width="100%"></td>
+            <td align="center"><img src="../imgs/webpage_mobile_dashboard2.png" alt="移动端枪声识别界面" width="100%"></td>
+            <td align="center"><img src="../imgs/webpage_mobile_admin.png" alt="移动端管理面板" width="100%"></td>
         </tr>
     </tbody>
 </table>
