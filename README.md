@@ -4,6 +4,134 @@
 
 ---
 
+```mermaid
+graph TB
+    %% ==================== 定义样式 ====================
+    classDef dataStyle fill:#e6f3ff,stroke:#0066cc,stroke-width:2px,color:#000
+    classDef processStyle fill:#f0f0f0,stroke:#333,stroke-width:2px,color:#000
+    classDef modelStyle fill:#fff0e6,stroke:#ff9933,stroke-width:2px,color:#000
+    classDef serviceStyle fill:#e6ffed,stroke:#009933,stroke-width:2px,color:#000
+    classDef apiStyle fill:#f9e6ff,stroke:#9933cc,stroke-width:2px,color:#000
+    classDef uiStyle fill:#ffffcc,stroke:#cccc00,stroke-width:2px,color:#000
+    classDef infraStyle fill:#f5f5f5,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5,color:#333
+
+    %% ==================== 顶部：用户入口 ====================
+    subgraph "用户入口"
+        direction TB
+        User["<fa:fa-user> 用户 / 管理员"]:::uiStyle
+        WebAppUI["<fa:fa-desktop> Web 前端<br/>(templates/ + static/)"]:::uiStyle
+    end
+
+    %% ==================== 核心部分 ====================
+    subgraph "系统核心"
+        direction LR 
+        
+        %% ------- 左侧：离线机器学习流水线 -------
+        subgraph "训练流水线"
+            direction TB
+            RawAudio["<fa:fa-file-audio> 原始音频<br/>(sounds/)"]:::dataStyle
+            FeatureExtractor["<fa:fa-cogs> 特征提取器<br/>(feature_extractor.py)"]:::processStyle
+            Features["<fa:fa-database> 中间特征<br/>(data/features/)"]:::dataStyle
+            
+            subgraph "训练与评估"
+                direction TB
+                Trainer["<fa:fa-dumbbell> 模型训练器<br/>(train_*.py)"]:::processStyle
+                Evaluator["<fa:fa-chart-bar> 模型评估器<br/>(evaluate.py)"]:::processStyle
+            end
+            
+            TrainedModels["<fa:fa-archive> 训练好的模型<br/>(trained_models/)"]:::modelStyle
+        end
+
+        %% ------- 右侧：在线应用服务 -------
+        subgraph "应用服务"
+            direction TB
+            Routes["<fa:fa-route> Flask API 路由<br/>(app/routes.py)"]:::apiStyle
+            
+            subgraph "业务逻辑"
+                direction TB
+                InferenceService["<fa:fa-brain> 推理服务<br/>(inference_service.py)"]:::serviceStyle
+                WeaponService["<fa:fa-crosshairs> 武器服务<br/>(services.py)"]:::serviceStyle
+            end
+
+            subgraph "管理与安全服务"
+                direction TB
+                UserService["<fa:fa-users> 用户服务<br/>(services.py)"]:::serviceStyle
+                AdminService["<fa:fa-user-shield> 管理员服务<br/>(admin_service.py)"]:::serviceStyle
+                SecurityService["<fa:fa-lock> 加密服务<br/>(services.py)"]:::serviceStyle
+            end
+        end
+    end
+
+    %% ==================== 数据存储 ====================
+    subgraph "数据存储与配置"
+        direction LR 
+        
+        subgraph "应用数据"
+            direction TB
+            ArmsData["<fa:fa-table> 武器数据<br/>(data/Arms.xlsx)"]:::dataStyle
+            PlayerData["<fa:fa-gamepad> 玩家存档<br/>(data/players/)"]:::dataStyle
+            UserData["<fa:fa-id-card> 用户数据库<br/>(data/users.dat)"]:::dataStyle
+        end
+
+        subgraph "安全配置"
+            direction TB
+            AdminCreds["<fa:fa-key> 管理员凭据<br/>(admin_credentials.txt)"]:::dataStyle
+            SecretKey["<fa:fa-user-secret> 加密密钥<br/>(secret.key)"]:::dataStyle
+        end
+        
+        EvaluationReports["<fa:fa-file-csv> 评估报告<br/>(reports/)"]:::dataStyle
+    end
+
+    %% ==================== 基础设施层 (位置优化：移至此处以沉底并紧凑化) ====================
+    subgraph "基础设施层" 
+        direction LR %% 改为 LR 使其扁平化，作为“底座”支撑上方模块
+        GPU["<fa:fa-microchip> 硬件加速<br/>**NVIDIA V100 GPU**"]:::infraStyle
+        Env["<fa:fa-cubes> 深度学习环境<br/>**PyTorch 2.9.1**<br/>**CUDA 12.6**"]:::infraStyle
+    end
+
+    %% ==================== 连线逻辑 (保持不变) ====================
+    
+    %% 用户交互
+    User ==> WebAppUI
+    WebAppUI ==> Routes
+
+    %% API 分发
+    Routes --> InferenceService
+    Routes --> WeaponService
+    Routes --> UserService
+    Routes --> AdminService
+
+    %% 服务依赖
+    InferenceService -.->|加载| TrainedModels
+    WeaponService --> SecurityService
+    UserService --> SecurityService
+    AdminService --> SecurityService
+
+    %% 数据读写
+    WeaponService --> ArmsData
+    WeaponService --> PlayerData
+    UserService --> UserData
+    AdminService --> AdminCreds
+    SecurityService --> SecretKey
+
+    %% ML 流水线
+    RawAudio --> FeatureExtractor
+    FeatureExtractor --> Features
+    Features --> Trainer
+    Trainer --> TrainedModels
+    
+    %% 评估
+    Features -.-> Evaluator
+    TrainedModels -.-> Evaluator
+    Evaluator --> EvaluationReports
+
+    %% 基础设施支撑
+    GPU --- Env
+    Env -.->|算力支撑| Trainer
+    Env -.->|算力支撑| InferenceService
+```
+
+
 ## 🚀 核心功能亮点
 
 ### Web 应用
