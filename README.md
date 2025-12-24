@@ -277,24 +277,25 @@ python -m src.sound_recognition.evaluate
 
 ```
 .
-├── app/                  # [核心] Web应用核心包
+├── app/                  # Web应用核心包
 │   ├── static/           # CSS, JS, Images
 │   ├── templates/        # HTML 模板
 │   ├── __init__.py       # 应用工厂, 创建app实例
 │   ├── routes.py         # 路由层 (API Endpoints)
 │   ├── services.py       # 用户与武器业务逻辑
 │   ├── admin_service.py  # 管理员认证服务
-│   └── inference_service.py # [核心] 模型推理服务
+│   └── inference_service.py # 模型推理服务
 ├── data/                 # 用户数据与初始数据
-├── src/                  # [核心] 声音识别训练流水线
+├── src/                  # 声音识别训练流水线
 │   └── sound_recognition/
 ├── reports/              # 评估报告与图表
 ├── trained_models/       # 训练好的模型文件
 ├── admin_credentials.txt # 管理员凭据 (默认: admin:admin)
 ├── cache_strategy.json   # 模型缓存策略配置
+├── generate_spectrograms.py #频谱图可视化脚本
 ├── app.log               # 应用日志文件
-├── models.py             # 数据模型 (Weapon, Player)
-├── run.py                # [入口] Web应用启动脚本
+├── models.py             # 数据模型 (Weapon, Player) 非推理模型
+├── run.py                # Web应用启动脚本
 ├── version.txt           # 全局版本号文件
 └── README.md             # 本文档
 ```
