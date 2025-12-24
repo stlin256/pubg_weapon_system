@@ -175,11 +175,11 @@
 		\normalsize
 		本项目\footnote{项目源码与文档地址（GitHub）：\url{https://github.com/stlin256/pubg_weapon_system}}旨在构建一个集成了高性能机器学习流水线与全功能Web服务的综合性系统，以对PUBG游戏中的武器开火声进行精确的多维度识别（武器类型、距离、方向）。为实现此目标，我们设计并实现了一个包含“离线模型训练”与“在线推理服务”两大核心模块的工程实践。
 		
-		为达成高精度的识别目标，本研究通过一套科学、可复现的机器学习流水线系统性地解决了模型选型问题：(1) 对多种传统机器学习模型（如随机森林、XGBoost）和两种前沿的Transformer音频识别模型（AST, PaSST）进行了全面的训练与评估；(2) 针对声源方向识别的独特挑战，我们创新性地对\textbf{PaSST模型进行了双声道改造}，使其能有效捕捉并利用决定声音空间感的关键特征。在此基础上，我们开发了一套基于Flask应用工厂模式的、功能完备的Web应用，集成了用户管理、数据加密、实时推理接口以及智能模型缓存等功能，实现了从模型到服务的无缝衔接。
+		为达成高精度的识别目标，本研究通过一套科学、可复现的机器学习流水线系统性地解决了模型选型问题：(1) 对多种传统机器学习模型（如随机森林、XGBoost）和两种前沿的Transformer音频识别模型（AST, PaSST）进行了全面的训练与评估；(2) 针对声源方向识别的独特挑战，我们创新性地对\textbf{PaSST模型进行了双声道改造}，使其能有效捕捉并利用决定声音空间感的关键特征。在此基础上，我们开发了一套基于Flask应用工厂模式的、功能完备的Web应用，集成了用户管理、数据加密、实时推理接口以及智能模型缓存等功能，实现了从模型到服务的无缝衔接。作为项目工程实践的最终环节，该Web服务被成功部署于一个由\textbf{TESLA V100 GPU}提供算力支持的虚拟化环境中，完成了从开发到部署的全流程闭环。
 		
 		本项目的一个核心发现是，经过双声道改造的PaSST模型在所有识别任务上均表现最佳，尤其是在最具挑战性的\textbf{方向识别任务上，其准确率达到了91.6\%}，性能显著超越所有其他单声道模型。这一结果有力地证实了双声道信息对于高精度声学定位的必要性。此外，通过将模型训练系统与Web服务系统解耦，本项目也成功实践了一套模块化、可扩展的AI应用工程架构。
 		
-		综上，本研究不仅交付了一个在关键任务上性能卓越的深度学习模型，更重要的是，完成了一次从模型研发、科学评估到最终服务化部署的\textbf{全栈系统工程实践}，为复杂AI技术在实际应用中的落地提供了一套完整且高效的解决方案。
+		综上，本项目不仅交付了一个在关键任务上性能优越的深度学习模型，还完成了一次从模型开发、科学评估到最终服务化部署的\textbf{全栈系统工程实践}。
 		
 		
 		
@@ -199,7 +199,7 @@
 	
 	在满足所有基本要求的基础上，为探索该课题的更高上限并挑战更完整的工程实践，本项目最终交付了以下三个层面的核心成果：
 	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
-		\item \textbf{在系统工程实践上：} 我们并未止步于命令行工具，而是构建了一套从模型训练到服务部署的\textbf{端到端全栈应用}。该应用以后端Flask应用工厂与前端现代化UI为特色，集成了用户管理、实时推理API与功能强大的管理员后台，实现了AI能力的完整产品化落地。
+		\item \textbf{在系统工程实践上：} 我们并未止步于命令行工具，而是构建了一套从模型训练到服务部署的\textbf{全栈应用}。该应用以后端Flask应用工厂与前端现代化UI为特色，集成了用户管理、实时推理API与功能强大的管理员后台，实现了AI能力的完整产品化落地。
 		\item \textbf{在模型方法探索上：} 我们建立了一套科学、可复现的评估流水线，系统性地对比了多种传统机器学习模型与两种前沿的Transformer音频识别模型（AST, PaSST），为模型选型提供了坚实的数据支撑。
 		\item \textbf{在核心技术创新上：} 为解决课程设计中最具挑战性的声源方向识别任务，我们创新性地改造了\textbf{PaSST模型}，使其能够\textbf{处理双声道音频}。实证表明，该模型取得了\textbf{91.6\%的方向识别准确率}，性能远超所有基线模型，是本项目在技术深度上的关键突破。
 	\end{itemize}
@@ -225,7 +225,7 @@
 	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
 		\item \textbf{核心识别任务：} 要求使用课程提供的 \texttt{gun\_sound\_v2} 数据集，对音频中的武器类型、开火距离和声源方向三个维度进行识别。
 		\item \textbf{机器学习流程：} 完成数据探索、可视化、模型训练与交叉验证，并提交包含混淆矩阵与核心性能指标（Accuracy, Precision, Recall, F1-score）的分析报告。
-		\item \textbf{进阶要求：} 本项目不仅完成了Level B要求的，从原始MP3音频出发，自主编写脚本提取 \textbf{MFCC 特征}，更进一步探索并实现了：(1) 基于 \textbf{Transformer} 架构的端到端深度学习模型；(2) 一套完整的、从模型训练到服务化部署的全栈Web应用。
+		\item \textbf{进阶要求：} 本项目不仅完成了Level B要求的，从原始MP3音频出发，自主编写脚本提取 \textbf{MFCC 特征}，更进一步探索并实现了：(1) 基于 \textbf{Transformer} 架构的深度学习模型；(2) 一套完整的、从模型训练到服务化部署的全栈Web应用。
 	\end{itemize}
 	
 	\subsection{总体架构设计：解耦的双系统模式}\label{s:2.2}
@@ -233,7 +233,7 @@
 	
 	该架构的核心优势在于：
 	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
-		\item \textbf{职责分离：} AI模型研发（位于\texttt{src/}目录）与Web应用服务（位于\texttt{app/}目录）可以被独立地开发、测试和迭代，互不干扰。
+		\item \textbf{职责分离：} AI模型开发（位于\texttt{src/}目录）与Web应用服务（位于\texttt{app/}目录）可以被独立地开发、测试和迭代，互不干扰。
 		\item \textbf{提升效率：} 负责模型的开发人员可以专注于模型性能的调优，而Web开发人员则可以专注于用户体验与服务的稳定性。
 		\item \textbf{增强健壮性：} 两个系统的分离设计使得任何一方的修改都不会轻易影响另一方，极大地降低了项目的维护成本。
 	\end{itemize}
@@ -681,18 +681,57 @@
 
 综上，这种高度结构化、信息丰富的日志格式，为系统的\textbf{可观测性}提供了坚实基础。
 
+\subsection{部署环境与资源占用分析}\label{s:5.4}
 
-	
+\subsubsection{部署环境配置}
+本项目答辩所用的在线服务部署于一个虚拟化服务器环境中，其具体的软硬件配置如下：
+\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+	\item \textbf{物理主机与虚拟化}: 系统运行在一台 \textbf{Dell PowerEdge R730xd (13代)} 服务器上，该服务器搭载了\textbf{两颗 Intel Xeon E5-2682v4 CPU }，并通过 \textbf{Proxmox VE (PVE)} 平台进行虚拟化管理。
+	\item \textbf{虚拟机配置}: 我们的部署环境是一个独立的虚拟机，运行 \textbf{Ubuntu Server 24.04} 操作系统，并为其分配了 \textbf{32个虚拟CPU核心} 和 \textbf{32GB 内存}。
+	\item \textbf{GPU配置}: 为满足项目的计算需求，该虚拟机被直通分配了一张 \textbf{TESLA V100 计算卡}，配备 \textbf{16GB SXM2 显存}。
+	\item \textbf{软件环境}: 整个软件环境构建在 \textbf{Python 3.10} 之上，深度学习框架为 \textbf{PyTorch 2.9.1}，并使用 \textbf{CUDA Toolkit 12.6} 。
+\end{itemize}
+
+\subsubsection{缓存策略对静态资源占用的影响}
+为了验证我们在 \texttt{InferenceService} 中设计的智能缓存策略的有效性，并精细化地分析不同类型模型的资源开销，我们对Web服务在多种缓存模式下的静态资源占用情况进行了对比测试。测试均在Web服务启动后、无任何用户交互的“空闲状态”下进行。
+
+测试结果如表 \ref{tab:resource-usage} 所示。
+
+\begin{table}[H]
+	\centering
+	\caption{不同缓存策略与模型类型下的静态资源占用对比}
+	\label{tab:resource-usage}
+	\begin{tabular}{@{}lcc@{}}
+		\toprule
+		\textbf{测试场景} & \textbf{内存 (RAM) 占用} & \textbf{显存 (VRAM) 占用} \\
+		\midrule
+		\texttt{selected} (无任何模型加载) & \textasciitilde{}0.7 GB & \textasciitilde{}0 GB \\
+		\texttt{selected} (仅加载所有XGBoost模型) & \textasciitilde{}0.9 GB & \textasciitilde{}0.3 GB \\
+		\texttt{selected} (仅加载所有PaSST模型) & \textasciitilde{}0.9 GB & \textasciitilde{}1.4 GB \\
+		\texttt{all} (全部模型预加载) & \textasciitilde{}1.5 GB & \textasciitilde{}2.5 GB \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\textbf{分析与结论：}
+从表中数据可以看到，不同模型类型与缓存策略对系统资源的占用有着显著差异：
+\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+	\item \textbf{基础资源开销：} 在无任何模型加载的情况下，系统仅占用了约0.7GB的内存和0GB的显存，这部分主要源于Python解释器与Flask应用框架自身的开销。
+	\item \textbf{模型类型的差异：} 两种类型的GPU加速模型在资源消耗上表现出巨大差异。加载所有基于树模型的XGBoost仅需额外约200MB内存和300MB显存。相比之下，加载所有基于Transformer的PaSST模型则需要额外约200MB内存和高达1.4GB的显存，后者对显存的开销更大。
+	\item \textbf{缓存策略的价值：} \textbf{预加载}模式以1.5GB内存和2.5GB显存的静态资源占用，换取了所有模型的最快首次响应速度。而\textbf{按需加载}模式则提供了灵活性，允许管理员根据硬件限制（特别是在显存有限的设备上），选择性地预加载核心模型，从而在资源占用与响应性能之间做出动态权衡。
+\end{itemize}
+这一对比测试，说明了我们所设计的\textbf{智能缓存策略在真实部署环境中的灵活性}。
+
 	
 	
 \section{总结与展望}\label{s:6}
 
 \subsection{项目总结}\label{s:6.1}
-综上所述，本项目不仅圆满完成了课程设计的所有要求，更在系统架构、模型创新与工程完整性上进行了深入的探索与实现。我们认为，\textbf{当前系统作为一个课程设计产出，在性能与健壮性上尚属“玩具”级别，但它完整地实践并验证了一套从AI模型研发到Web服务部署的技术流程}。
+综上所述，本项目不仅圆满完成了课程设计的所有要求，更在系统架构、模型创新与工程完整性上进行了深入的探索与实现。我们认为，\textbf{当前系统作为一个课程设计产出，在性能与健壮性上尚属“玩具”级别，但它完整地实践并验证了一套从AI模型开发到Web服务部署的技术流程}。
 
 回顾整个项目，核心成果可总结为以下三个方面：
 \begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
-	\item \textbf{在系统工程实践上：} 我们成功设计并实现了一套\textbf{“双系统解耦”架构}，将模型研发与Web服务清晰分离。在此基础上，我们交付了一个包含用户认证、AES数据加密、动态模型管理和响应式UI的\textbf{端到端全栈应用}。这标志着我们不仅完成了功能开发，更实践了一套准工业级的AI应用工程方法论。
+	\item \textbf{在系统工程实践上：} 我们成功设计并实现了一套\textbf{“双系统解耦”架构}，将模型开发与Web服务清晰分离。在此基础上，我们交付了一个包含用户认证、AES数据加密、动态模型管理和响应式UI的\textbf{全栈应用}，我们更将其\textbf{成功部署于虚拟化生产环境}中。这实现了从算法开发、应用构建到服务化部署的全流程闭环，标志着我们实践了一套完整的的AI应用工程。
 	\item \textbf{在模型方法探索上：} 我们建立了一套\textbf{科学、可复现的自动化评估流水线}。通过该流水线，我们系统性地对比了多种传统机器学习模型与两种前沿的Transformer音频识别模型，为最终的技术选型提供了坚实、量化的数据支撑，体现了严谨的科学研究方法。
 	\item \textbf{在核心技术创新上：} 本项目最关键的技术突破在于，我们针对性地解决了声源方向识别的难题。通过对PaSST模型的底层进行改造，我们成功实现了一个能够处理\textbf{双声道音频的Transformer模型}。实验结果表明，该模型在最具挑战性的“方向识别”任务上取得了 \textbf{91.6\%} 的准确率，性能远超所有基线方案，是本项目在技术深度上的核心贡献。
 \end{itemize}
@@ -713,7 +752,7 @@
 		\item \textbf{实现异步推理与任务队列：} 引入Celery与Redis等技术，将耗时的模型推理任务异步化。这将使Web服务器能瞬间处理大量并发请求，极大提高系统的吞吐量和可伸缩性。
 		\item \textbf{增强API安全性：} 将当前基于HTTP头的简单认证机制，升级为行业标准的JWT (JSON Web Tokens) 认证，以实现无状态、更安全的API权限控制。
 	\end{itemize}
-	\item \textbf{价值与功能扩展：}
+	\item \textbf{功能扩展：}
 	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
 		\item \textbf{开发实时音频流识别功能：} 利用WebSockets技术，探索从客户端进行实时音频流分析的可能性。这将是项目从一个“离线分析工具”向“游戏实时辅助系统”升级的关键一步，能够拓展出全新的应用场景。
 	\end{itemize}
@@ -726,7 +765,7 @@
 	\appendix
 	\section{附录：在线技术文档}
 	
-	为方便读者查阅更详尽的技术实现细节与项目背景，本项目的所有核心文档均已在线发布。您可以通过以下链接访问：
+	为方便查阅更详尽的技术实现细节与项目背景，本项目的文档已在线发布：
 	
 	\begin{itemize}
 		\item \textbf{模型成果报告:} \href{https://github.com/stlin256/pubg_weapon_system/blob/main/docs/SOUNDS_REPORT.md}{SOUNDS\_REPORT.md}
