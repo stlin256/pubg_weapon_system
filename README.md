@@ -243,7 +243,7 @@ graph TB
     *   Python: 3.10
     *   PyTorch: 2.9.1
     *   CUDA Toolkit: 12.6
-*   **硬件加速**: 服务的实时推理部分由 **NVIDIA V100 (16GB)** GPU 提供算力支持。
+*   **GPU**: 服务器部署了一块**TESLA V100 SXM2 16G**用于模型推理。
 
 ---
 
