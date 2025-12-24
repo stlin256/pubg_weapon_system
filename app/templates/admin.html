@@ -28,8 +28,9 @@
             background-color: var(--dark-bg);
             color: var(--text-main);
             margin: 0; padding: 2rem;
-            height: 100vh; /* 固定高度，防止body滚动 */
-            overflow: hidden; /* 防止页面整体滚动 */
+            min-height: 100vh; /* 改为最小高度，内容多时自动撑开 */
+            overflow-y: auto;  /* 允许垂直滚动 */
+            overflow-x: hidden; /* 防止水平滚动 */
             display: flex; flex-direction: column;
             background-image: radial-gradient(circle at top right, #1f2329 0%, transparent 40%);
         }
@@ -87,7 +88,7 @@
             display: grid;
             grid-template-columns: 380px 1fr;
             gap: 1.5rem;
-            min-height: 0; /* 关键：允许 Flex/Grid 子项小于内容高度，从而触发滚动条 */
+            min-height: 600px; /* 关键：允许 Flex/Grid 子项小于内容高度，从而触发滚动条 */
             padding-bottom: 2rem; /* 底部留白 */
         }
 
@@ -99,7 +100,8 @@
 
         /* 右侧日志区 (核心修复) */
         .log-section {
-            height: 100%;
+            height: auto;
+            min-height: 100%;
             display: flex; flex-direction: column;
             overflow: hidden; /* 确保内容不溢出 */
         }
@@ -321,7 +323,7 @@
                 </div>
             </div>
 
-            <div class="card" style="flex: 1; min-height: 300px;">
+            <div class="card" style="flex: 1;">
                 <div class="card-header">用户列表</div>
                 <div class="card-body" style="padding: 0;">
                     <ul id="user-list">
