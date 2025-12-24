@@ -386,7 +386,7 @@
 	\subsection{实验设置与评估流程}\label{s:3.3}
 	为保证实验的科学性、严谨性和可复现性，我们设计了统一的评估流程。
 	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
-		\item \textbf{数据集划分策略：} 我们在 \texttt{src/sound\_recognition/dataset.py} 中采用\textbf{带分层的随机抽样} (\texttt{stratify}) 来划分训练集与测试集，确保了训练集和测试集中各个类别的样本比例与原始数据集保持一致。
+		\item \textbf{数据集划分策略：} 我们在 \texttt{src/sound\_recognition/dataset.py} 中采用\textbf{带分层的随机抽样}来划分训练集与测试集，确保了训练集和测试集中各个类别的样本比例与原始数据集保持一致。
 		\item \textbf{评估指标：} 我们选用Accuracy, Precision (Macro), Recall (Macro), F1-score (Macro) 作为核心评估指标。采用Macro平均能够公平地对待所有类别，避免因样本不均衡问题导致评估结果出现偏差。
 		\item \textbf{自动化评估脚本：} 我们编写了 \texttt{src/sound\_recognition/evaluate.py} 脚本，该脚本能够\textbf{自动发现 \texttt{trained\_models/} 目录下所有已训练好的模型}（包括scikit-learn模型和Transformer模型），并在统一的测试集上运行评估，最终生成一份包含所有模型性能的综合性CSV报告。这一自动化流程极大地提升了实验效率和结果的一致性。
 	\end{itemize}
