@@ -41,6 +41,17 @@
 
 ![模型总准确率对比](../reports/figures/overall_accuracy_grouped_zh.png)
 
+为了从更全面的维度审视模型性能，我们同样生成了所有模型在精确率（Precision）、召回率（Recall）和F1分数（F1-Score）上的总览图。
+
+![模型总精确率对比](../reports/figures/overall_precision_grouped_zh.png)
+
+![模型总召回率对比](../reports/figures/overall_recall_grouped_zh.png)
+
+![模型总F1分数对比](../reports/figures/overall_f1_score_grouped_zh.png)
+
+**图表解读**:
+四张图表共同揭示了一个高度一致的结论：无论以哪个核心指标衡量，**PaSST 和 AST 模型都稳居性能的第一梯队**。这有力证明了 Transformer 架构在本项目中的绝对优势，并为我们最终选择 PaSST 作为最优方案提供了坚实、多维度的数据支撑。
+
 ### 核心发现
 
 1.  **Transformer模型展现绝对优势**:

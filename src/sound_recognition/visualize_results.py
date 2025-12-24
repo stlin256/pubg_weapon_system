@@ -68,7 +68,9 @@ TRANSLATIONS = {
         'ml_title': '目标: "{target}" - 传统机器学习模型对比',
         'transformer_title': '目标: "{target}" - Transformer 模型对比',
         'grouped_accuracy_title': '所有目标类别的模型准确率总览',
-        'grouped_f1_title': '所有目标类别的模型F1分数(Macro)总览'
+        'grouped_f1_title': '所有目标类别的模型F1分数(Macro)总览',
+        'grouped_precision_title': '所有目标类别的模型精确率(Macro)总览',
+        'grouped_recall_title': '所有目标类别的模型召回率(Macro)总览'
     }
 }
 
@@ -281,6 +283,12 @@ def main():
         plot_comparison(df_ml, 'ml_title', f'ml_models_{target}_zh.png', lang='zh', target_en=target)
         plot_comparison(df_transformer, 'transformer_title', f'transformer_models_{target}_zh.png', lang='zh', target_en=target)
         
+        # --- 新增：为 Precision 和 Recall 生成单独的图表 ---
+        # Precision
+        plot_comparison(df_target, 'all_title', f'precision_{target}_zh.png', lang='zh', target_en=target, y='precision (macro)')
+        # Recall
+        plot_comparison(df_target, 'all_title', f'recall_{target}_zh.png', lang='zh', target_en=target, y='recall (macro)')
+
     # 总览图
     plot_grouped_overall(df, 'grouped_accuracy_title', 'overall_accuracy_grouped.png', lang='en')
     plot_grouped_overall(df, 'grouped_f1_title', 'overall_f1_score_grouped.png', lang='en', y='f1-score (macro)')
@@ -289,6 +297,10 @@ def main():
     plot_grouped_overall(df, 'grouped_accuracy_title', 'overall_accuracy_grouped_zh.png', lang='zh')
     plot_grouped_overall(df, 'grouped_f1_title', 'overall_f1_score_grouped_zh.png', lang='zh', y='f1-score (macro)')
     
+    # --- 新增：为 Precision 和 Recall 生成总览图 ---
+    plot_grouped_overall(df, 'grouped_precision_title', 'overall_precision_grouped_zh.png', lang='zh', y='precision (macro)')
+    plot_grouped_overall(df, 'grouped_recall_title', 'overall_recall_grouped_zh.png', lang='zh', y='recall (macro)')
+
     # --- 1. 生成新的双指标对比图 ---
     for target in df['target'].unique():
         df_target = df[df['target'] == target]

@@ -175,6 +175,15 @@ python -m src.sound_recognition.evaluate --model_type sklearn
 
 评估完成后，您将在`reports/`目录下找到`evaluation_results.csv`和所有模型的混淆矩阵图。
 
+### 步骤 4: 生成可视化报告图表
+
+在综合评估生成 `evaluation_results.csv` 文件后，您可以运行此脚本来自动生成所有用于最终报告的对比图表和热力图。
+
+```bash
+python -m src.sound_recognition.visualize_results
+```
+脚本执行完毕后，所有图表（包括中英文版本）将自动保存到 `reports/figures/` 目录下，可直接用于撰写报告。
+
 ## 4. 模型与参数说明
 
 我们在`train.py`中预定义了以下传统模型，关键参数如下：

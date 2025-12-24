@@ -123,17 +123,21 @@
 		
 		\vspace{1.5cm} % 学院信息与成员信息之间的间距
 		
-		\begin{tabular}{r @{\hspace{1.5em}} l}
+		\begin{tabular}{r @{\hspace{1.5em}} l} 
 			
-			% --- 组长信息 ---
-			\textbf{林怡嘉\ 202434610218}& \\
-			
-			\textbf{林兴昊\ 202434610217}& \\
-			
-			\textbf{韩兴隆\ 202434610207}& \\
+			% --- 成员信息 ---
+			% 用 & 把名字(右对齐)和学号(左对齐)分开
+			\textbf{林怡嘉} & \textbf{202434610218} \\
+			\textbf{林兴昊} & \textbf{202434610217} \\
+			\textbf{韩兴隆} & \textbf{202434610207} \\
 			
 		\end{tabular}
 		
+		
+		\vspace{1cm} % 成员信息与老师信息之间的间距
+		
+		\large % 设置字体大小
+		{\kaishu 授课老师：刁寅亮} % 使用楷书字体
 		
 		\vfill % 将下方的所有内容推到页面底部 (如果需要的话)
 		\large % 将这部分文字放大一些
@@ -335,13 +339,13 @@
 		\end{tabular}
 	\end{table}
 	
-	\subsubsection{前沿模型：音频Transformer (AST)}
+	\subsubsection{模型：音频Transformer (AST)}
 	我们引入了先进的 \textbf{AST (Audio Spectrogram Transformer)} 模型\footfullcite{gong2021ast}。该模型借鉴了计算机视觉领域Vision Transformer (ViT)的思想，将声谱图视为一张“图片”，并利用Transformer强大的自注意力机制直接从声谱图中学习音频表征。我们通过 \texttt{src/sound\_recognition/train\_ast.py} 脚本，利用Hugging Face生态系统提供的预训练AST模型进行了高效的微调。
 	
-	\subsubsection{突破性探索：双声道PaSST模型}
+	\subsubsection{探索：改造双声道PaSST模型}
 	在初步实验中，我们发现AST等单声道模型虽然在武器和距离识别上表现优异，但在“方向识别”任务上存在天然的理论局限性——即无法感知声音的空间信息。为解决此问题，我们进行了本项目的核心技术创新：对 \textbf{PaSST (Patch Audio Spectrogram Transformer)}模型\footfullcite{koutini2022passt}进行\textbf{双声道改造}。
 	
-	我们的方案是修改模型的Patch Embedding层，使其能够\textbf{同时接收左、右两个声道的对数梅尔声谱图}作为双通道输入，而非混合后的单通道输入。这样，模型便能从两个声道的细微差异中学习到\textbf{双耳时间差}和\textbf{双耳强度差}等关键空间线索。PaSST模型数据处理流程如图 \ref{fig:passt_diag} 所示。
+	我们的方案是修改模型的Patch Embedding层，使其能够\textbf{同时接收左、右两个声道的对数梅尔声谱图}作为双通道输入，而非混合后的单通道输入。这样，模型便能从两个声道的细微差异中学习到\textbf{双耳时间差}和\textbf{双耳强度差}等关键空间线索。典型的PaSST模型数据处理流程如图 \ref{fig:passt_diag} 所示。
 	
 	\begin{figure}[htbp]
 		\centering
@@ -395,7 +399,7 @@
 	在对所有模型进行完整训练和评估后，我们得到了清晰的、数据驱动的性能对比结果。
 	
 	\subsubsection{总体性能对比}
-	所有模型在三个任务上的总体准确率表现如图 \ref{fig:overall_accuracy} 所示。从图中可以得出第一个核心发现：\textbf{两种Transformer模型（PaSST和AST）的性能全面、显著地超越了所有传统机器学习基线模型}，这证明了端到端深度学习方法在直接从声谱图学习复杂声学特征方面的优越性。
+	所有模型在三个任务上的总体准确率表现如图 \ref{fig:overall_accuracy} 所示。从图中可以得出第一个核心发现：\textbf{两种Transformer模型（PaSST和AST）的性能全面、显著地超越了所有传统机器学习基线模型}，这证明了深度学习方法在直接从声谱图学习复杂声学特征方面的优越性。
 	
 	\begin{figure}[htbp]
 		\centering
@@ -414,7 +418,29 @@
 		\label{fig:task_comparison}
 	\end{figure}
 	
-	如图 \ref{fig:task_comparison} 所示，我们经过\textbf{双声道改造的PaSST模型}在此任务上取得了\textbf{91.6\%的准确率}，比次优的单声道AST模型高出8个百分点，更是将所有传统模型远远甩在身后。这一结果强有力地证明了我们双声道改造策略的巨大成功。
+	如图 \ref{fig:task_comparison} 所示，我们经过\textbf{双声道改造的PaSST模型}在此任务上取得了\textbf{91.6\%的准确率}，比次优的单声道AST模型高出8个百分点，更是将所有传统模型远远甩在身后。这一结果有力地证明了我们双声道改造策略的成功。
+	
+	\subsubsection{“方向识别”任务性能剖析}
+	为进一步印证经过\textbf{双声道改造的PaSST模型}在关键任务上的绝对优势，我们将其在“方向识别”任务上的另外两个核心性能指标——精确率（Precision）和召回率（Recall）——进行并排对比（见图 \ref{fig:direction_deep_dive}）。
+	
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.48\textwidth}
+			\includegraphics[width=\textwidth]{reports/figures/precision_direction_zh.png}
+			\caption{精确率 (Precision)}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}[b]{0.48\textwidth}
+			\includegraphics[width=\textwidth]{reports/figures/recall_direction_zh.png}
+			\caption{召回率 (Recall)}
+		\end{subfigure}
+		\caption{经过\textbf{双声道改造的PaSST模型}在“方向识别”任务上的多维度性能领先地位}
+		\label{fig:direction_deep_dive}
+	\end{figure}
+	
+	\textbf{图表解读：}
+	三张图表清晰地展示了经过\textbf{双声道改造的PaSST模型}在该任务上的领先地位。无论是以衡量整体判断准确性的\textbf{准确率 (Accuracy)}（0.916），还是以衡量“查准率”的\textbf{精确率 (Precision)}（0.894），或是以衡量“查全率”的\textbf{召回率 (Recall)}（0.890）来评估，PaSST的性能得分均领先于所有其他模型。这一组对比图从多维度证明了我们双声道改造策略的成功。
+	
 	
 	\subsubsection{PaSST混淆矩阵解读}
 	为了更深入地理解PaSST模型为何能在方向识别上取得成功，我们对其在该任务上的混淆矩阵（见图 \ref{fig:cm_passt_direction}）进行深度剖析。
@@ -429,7 +455,7 @@
 	\textbf{混淆矩阵解读：}
 	混淆矩阵的对角线代表模型预测正确的样本数量，非对角线则代表预测错误的样本。从图 \ref{fig:cm_passt_direction} 中，我们可以得出两个关键洞察：
 	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
-		\item \textbf{整体性能优异：} 绝大多数样本都集中在主对角线上，这与我们高达91.6%的准确率结论相符。例如，对于“正前方”(center)的202个样本，模型实现了100%的正确预测；对于“后方”(back)的54个样本，也全部预测正确。
+		\item \textbf{整体性能优异：} 绝大多数样本都集中在主对角线上，这与我们高达91.6\%的准确率结论相符。例如，对于“正前方”(center)的202个样本，模型实现了100\%的正确预测；对于“后方”(back)的54个样本，也全部预测正确。
 		\item \textbf{主要的混淆点：} 模型的错误主要集中在区分“左”(left)和“右”(right)两个类别上。具体来看：
 		\begin{itemize}
 			\item 当真实标签是“左”(left)时，有8个样本被错误地预测为了“右”(right)。
@@ -437,7 +463,7 @@
 		\end{itemize}
 		这种对称性的混淆表明，虽然模型能够很好地分辨“前、后、中”这类相对明确的方位，但在处理对称的“左、右”方位时，仍然存在一定的挑战。尽管如此，这种错误模式依然是相对集中的，并未出现将“左”误判为“前”或“后”这类更严重的偏差。
 	\end{itemize}
-	综上所述，对混淆矩阵的微观分析不仅再次验证了PaSST模型的卓越性能，更精确地定位了其主要的混淆来源，为未来模型的针对性改进（例如，引入更具区分度的双声道特征）指明了方向。6
+	综上所述，对混淆矩阵的微观分析不仅再次验证了PaSST模型的卓越性能，更精确地定位了其主要的混淆来源，为未来模型的针对性改进（例如，引入更具区分度的双声道特征）指明了方向。
 	
 	\subsubsection{性能洞察与结论}
 	为进一步洞察模型表现，我们绘制了所有模型在三个任务上的F1分数热力图（见图 \ref{fig:heatmap}）。图中清晰地显示，\texttt{passt}模型在所有格子中都处于最亮的区间，再次证明了其综合性能最优的地位。
@@ -696,6 +722,17 @@
 	%\newpage 
 	%\renewcommand{\bibname}{参考文献}
 	%\printbibliography[heading=bibintoc, title={参考文献}]
+	\newpage
+	\appendix
+	\section{附录：在线技术文档}
 	
+	为方便读者查阅更详尽的技术实现细节与项目背景，本项目的所有核心文档均已在线发布。您可以通过以下链接访问：
+	
+	\begin{itemize}
+		\item \textbf{模型成果报告:} \href{https://github.com/stlin256/pubg_weapon_system/blob/main/docs/SOUNDS_REPORT.md}{SOUNDS\_REPORT.md}
+		\item \textbf{模型训练指南:} \href{https://github.com/stlin256/pubg_weapon_system/blob/main/docs/sounds_model_GUIDE.md}{sounds\_model\_GUIDE.md}
+		\item \textbf{Web应用技术文档:} \href{https://github.com/stlin256/pubg_weapon_system/blob/main/docs/WEAPON_SYSTEM_GUIDE.md}{WEAPON\_SYSTEM\_GUIDE.md}
+		\item \textbf{项目常见问答 (Q\&A):} \href{https://github.com/stlin256/pubg_weapon_system/blob/main/docs/PROJECT_QA.md}{PROJECT\_QA.md}
+	\end{itemize}
 	
 \end{document}
