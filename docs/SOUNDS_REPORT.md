@@ -23,6 +23,14 @@
         *   `train_ast.py`: 微调 **Audio Spectrogram Transformer (AST)** 模型，它直接处理单声道声谱图。
         *   `train_passt.py`: 微调 **Patch Audio Spectrogram Transformer (PaSST)** 模型，并创新性地改造其以支持**双声道**输入，旨在增强空间（方向）特征的捕捉能力。
 
+为了直观展示两种 Transformer 模型的输入差异，下图展示了从同一段音频生成的两种声谱图：
+
+| AST 输入 (单声道) | PaSST 输入 (双声道) |
+| :---: | :---: |
+| ![AST 模型输入频谱图](../imgs/ast_clean_10s.png) | ![PaSST 模型输入频谱图](../imgs/passt_clean_stereo.png) |
+
+这种输入的差异，特别是 经过我们的修改的PaSST 对双声道信息的保留，是其在方向识别任务上取得成功的关键。
+
 3.  **综合评估与可视化**:
     *   我们创建了`evaluate.py`脚本，能够自动发现所有训练好的模型，并在统一的测试集上运行评估。
     *   新增了`visualize_results.py`脚本，它读取评估结果，并自动生成一系列中英文、高分辨率的对比图表，用于最终报告。

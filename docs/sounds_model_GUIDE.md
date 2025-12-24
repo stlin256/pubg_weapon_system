@@ -300,6 +300,17 @@ python -m src.sound_recognition.evaluate
     4.  **输入网络**：送入修改过输入层的 Transformer。
     5.  **输出处理**：PaSST 默认返回 Tuple (Class Token, Distillation Token)，此处只取第一个 Class Token。
 
+#### **图解：模型输入的频谱图**
+为了更直观地理解模型的输入，下图展示了从同一段音频 (`m4_200m_right_1412.mp3`) 生成的、分别符合 AST 和 我们修改后的PaSST 模型输入要求的梅尔频谱图。
+
+| AST 输入 (单声道) | PaSST 输入 (双声道) |
+| :---: | :---: |
+| ![AST 模型输入频谱图](../imgs/ast_clean_10s.png) | ![PaSST 模型输入频谱图](../imgs/passt_clean_stereo.png) |
+
+**分析**:
+*   **AST** 模型接收的是一个经过填充（或截断）的单声道频谱图，它融合了左右声道的信息，反映了音频的整体频率特征。
+*   我们修改后的双声道 **PaSST** 模型则接收两个独立的、同样经过填充处理的频谱图，清晰地保留了左、右声道各自的特征。正是这种差异，使得 PaSST 能够捕捉到声音的**空间信息**（如细微的时间和强度差），从而在方向识别任务上表现得更为出色。
+
 #### 7.2.3. 主函数逻辑 (`main`)
 
 **A. 模型改造 (Model Adaptation)**

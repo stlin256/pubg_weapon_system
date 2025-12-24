@@ -147,8 +147,22 @@ def generate_passt_images(audio_path):
             "passt_clean_stereo.png",
             x_limit=None
         )
+
+        # --- 图5: PaSST Clean Stereo 修改标题用于报告插图---
+        passt_model.eval() 
+        spec_l_clean = mel_transformer(left_tensor.unsqueeze(0)).squeeze(0).detach().numpy()
+        spec_r_clean = mel_transformer(right_tensor.unsqueeze(0)).squeeze(0).detach().numpy()
         
-        # --- 图5: PaSST Padded Stereo (10s) ---
+        save_dual_channel_plot(
+            spec_l_clean, 
+            spec_r_clean,
+            sampling_rate,
+            "Mel-Spectrogram",
+            "Mel-Spectrogram_stereo.png",
+            x_limit=None
+        )
+        
+        # --- 图6: PaSST Padded Stereo (10s) ---
         passt_model.train() 
         target_len = 32000 * 10
         

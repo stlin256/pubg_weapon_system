@@ -189,7 +189,7 @@
 	
 	\section{引言}\label{s:1}
 	
-	本课程设计是面向人工智能专业核心课程的一项综合性实践，旨在系统性地应用与巩固Python程序设计、面向对象编程、数据处理与机器学习等核心知识。根据课程设计要求，本项目围绕《绝地求生》(PUBG)\footnote{一款TPS大逃杀游戏，游戏没有提供环境内各类声音的方向、种类、距离等信息，游玩时十分依赖玩家自身的声音辨别能力。}的游戏场景，整合了“武器管理系统”与“武器声音识别”两大核心模块，要求完成从需求分析、系统设计、程序实现到测试评估的全流程。
+	本课程设计是面向人工智能专业核心课程的一项综合性实践，旨在系统性地应用与巩固Python程序设计、面向对象编程、数据处理与机器学习等核心知识。根据课程设计要求，本项目围绕《绝地求生》(PUBG)\footnote{一款第三人称射击（TPS）大逃杀游戏。在游戏中，玩家无法通过UI提示直接获取敌人的位置信息，因此，通过听声辨位来判断枪声的种类、距离和方向，是获取游戏优势乃至生存下来的重要技能。}的游戏场景，整合了“武器管理系统”与“武器声音识别”两大核心模块，要求完成从需求分析、系统设计、程序实现到测试评估的全流程。
 	
 	为达成上述目标，本课程设计严格遵循了模块化的开发思路。在“武器管理系统”模块中，我们应用了面向对象编程、文件读写与数据持久化技术，并为保证系统的健壮性与安全性，额外实现了异常处理与AES加密等拓展功能。在“武器声音识别”模块中，我们则遵循了科学的机器学习建模流程，不仅完成了课程要求的从原始音频中提取MFCC特征、训练并评估多种传统机器学习模型（Level B要求），更进一步探索了前沿深度学习模型在此任务上的应用潜力。
 	
@@ -301,14 +301,14 @@
 	针对不同类型的模型，我们采用了不同的特征工程策略：
 	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
 		\item \textbf{传统模型特征 (MFCC)：} 对于传统的机器学习模型，我们选择 \textbf{MFCC (梅尔频率倒谱系数)} \footfullcite{davis1980comparison}作为核心声学特征。MFCC能够有效模拟人耳的听觉感知特性，将音频信号的频谱包络信息编码为一组低维、鲁棒的特征向量。我们通过独立的 \texttt{src/sound\_recognition/feature\_extractor.py} 脚本批量提取所有音频的MFCC特征并保存为 \texttt{.npy} 文件，极大地加速了后续基线模型的实验迭代效率。
-		\item \textbf{深度学习输入 (声谱图)：} 对于Transformer等深度学习模型，我们直接将原始音频波形转换为\textbf{对数梅尔声谱图 (Log-Mel Spectrogram)}，并将其作为图像输入到模型中，让模型自动学习从声谱图中提取最高效、最相关的声学特征。一个典型的梅尔声谱图示例如图 \ref{fig:log-mel-spectrogram} 所示。
+		\item \textbf{深度学习输入 (声谱图)：} 对于Transformer等深度学习模型，我们直接将原始音频波形转换为\textbf{梅尔声谱图}，并将其作为图像输入到模型中，让模型自动学习从声谱图中提取最高效、最相关的声学特征。我们用于后续模型训练的梅尔声谱图如图 \ref{fig:mel-spectrogram} 所示。
 	\end{itemize}
 	
 	\begin{figure}[htbp]
 		\centering
-		\includegraphics[width=0.6\textwidth]{imgs/Log-Mel.png}
+		\includegraphics[width=0.9\textwidth]{imgs/Mel-Spectrogram_stereo.png}
 		\caption{梅尔声谱图}
-		\label{fig:log-mel-spectrogram}
+		\label{fig:mel-spectrogram}
 	\end{figure}
 	
 	\subsection{模型探索与训练}\label{s:3.2}
@@ -341,16 +341,16 @@
 	\subsubsection{突破性探索：双声道PaSST模型}
 	在初步实验中，我们发现AST等单声道模型虽然在武器和距离识别上表现优异，但在“方向识别”任务上存在天然的理论局限性——即无法感知声音的空间信息。为解决此问题，我们进行了本项目的核心技术创新：对 \textbf{PaSST (Patch Audio Spectrogram Transformer)}模型\footfullcite{koutini2022passt}进行\textbf{双声道改造}。
 	
-	我们的方案是修改模型的Patch Embedding层，使其能够\textbf{同时接收左、右两个声道的对数梅尔声谱图}作为双通道输入，而非混合后的单通道输入。这样，模型便能从两个声道的细微差异中学习到\textbf{双耳时间差}和\textbf{双耳强度差}等关键空间线索。其核心思想如图 \ref{fig:passt_diag} 所示。
+	我们的方案是修改模型的Patch Embedding层，使其能够\textbf{同时接收左、右两个声道的对数梅尔声谱图}作为双通道输入，而非混合后的单通道输入。这样，模型便能从两个声道的细微差异中学习到\textbf{双耳时间差}和\textbf{双耳强度差}等关键空间线索。PaSST模型数据处理流程如图 \ref{fig:passt_diag} 所示。
 	
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=0.7\textwidth]{imgs/passt_diag.png}
-		\caption{双声道PaSST模型数据处理流程示意图}
+		\caption{PaSST模型数据处理流程示意图}
 		\label{fig:passt_diag}
 	\end{figure}
 	
-	如图 \ref{fig:passt_diag} 所示，左、右声道的声谱图被分别处理并作为两个独立的通道输入模型，在后续的自注意力层中进行信息融合。该创新在 \texttt{src/sound\_recognition/train\_passt.py} 脚本中实现，核心改造逻辑如代码清单 \ref{lst:passt-forward} 所示。
+	我们改进的PaSST模型，其左、右声道的声谱图被分别处理并作为两个独立的通道输入模型，在后续的自注意力层中进行信息融合。该创新在 \texttt{src/sound\_recognition/train\_passt.py} 脚本中实现，核心改造逻辑如代码清单 \ref{lst:passt-forward} 所示。
 	
 	\begin{listing}[htbp]
 		\begin{minted}[
@@ -416,6 +416,29 @@
 	
 	如图 \ref{fig:task_comparison} 所示，我们经过\textbf{双声道改造的PaSST模型}在此任务上取得了\textbf{91.6\%的准确率}，比次优的单声道AST模型高出8个百分点，更是将所有传统模型远远甩在身后。这一结果强有力地证明了我们双声道改造策略的巨大成功。
 	
+	\subsubsection{PaSST混淆矩阵解读}
+	为了更深入地理解PaSST模型为何能在方向识别上取得成功，我们对其在该任务上的混淆矩阵（见图 \ref{fig:cm_passt_direction}）进行深度剖析。
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{reports/figures/cm_passt_direction_final_direction.png}
+		\caption{PaSST模型在“方向识别”任务上的混淆矩阵}
+		\label{fig:cm_passt_direction}
+	\end{figure}
+	
+	\textbf{混淆矩阵解读：}
+	混淆矩阵的对角线代表模型预测正确的样本数量，非对角线则代表预测错误的样本。从图 \ref{fig:cm_passt_direction} 中，我们可以得出两个关键洞察：
+	\begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
+		\item \textbf{整体性能优异：} 绝大多数样本都集中在主对角线上，这与我们高达91.6%的准确率结论相符。例如，对于“正前方”(center)的202个样本，模型实现了100%的正确预测；对于“后方”(back)的54个样本，也全部预测正确。
+		\item \textbf{主要的混淆点：} 模型的错误主要集中在区分“左”(left)和“右”(right)两个类别上。具体来看：
+		\begin{itemize}
+			\item 当真实标签是“左”(left)时，有8个样本被错误地预测为了“右”(right)。
+			\item 当真实标签是“右”(right)时，有8个样本被错误地预测为了“左”(left)。
+		\end{itemize}
+		这种对称性的混淆表明，虽然模型能够很好地分辨“前、后、中”这类相对明确的方位，但在处理对称的“左、右”方位时，仍然存在一定的挑战。尽管如此，这种错误模式依然是相对集中的，并未出现将“左”误判为“前”或“后”这类更严重的偏差。
+	\end{itemize}
+	综上所述，对混淆矩阵的微观分析不仅再次验证了PaSST模型的卓越性能，更精确地定位了其主要的混淆来源，为未来模型的针对性改进（例如，引入更具区分度的双声道特征）指明了方向。6
+	
 	\subsubsection{性能洞察与结论}
 	为进一步洞察模型表现，我们绘制了所有模型在三个任务上的F1分数热力图（见图 \ref{fig:heatmap}）。图中清晰地显示，\texttt{passt}模型在所有格子中都处于最亮的区间，再次证明了其综合性能最优的地位。
 	
@@ -472,7 +495,7 @@
 
 此外，为了在不同设备上提供一致的优质体验，所有界面均采用了\textbf{响应式布局}设计。如图 \ref{fig:ui-showcase} 所示，无论是用户仪表盘还是管理员后台，系统都能在PC桌面端和移动设备上进行优雅地适配和渲染。
 
-\begin{figure}[htbp]
+\begin{figure}
 	\centering
 	% Row 1: PC Interfaces
 	\begin{minipage}{\textwidth}
@@ -498,7 +521,7 @@
 	\label{fig:ui-showcase}
 \end{figure}
 
-
+\newpage
 
 \subsection{管理员后台系统}\label{s:4.4}
 我们为本系统设计并开发了一套功能强大的独立管理员后台，以满足对系统进行监控与管理的需求（见图 \ref{fig:ui_admin}）。
@@ -625,12 +648,12 @@
 		\addlinespace
 		Results (识别结果) & Results: (w: m24, d: 600m, dir: right) & 记录模型最终的预测输出。 \\
 		\addlinespace
-		Duration (执行耗时) & Duration: 0.07s & 记录本次请求的端到端处理时间，是性能监控的关键指标。 \\
+		Duration (执行耗时) & Duration: 0.07s & 记录本次请求的处理时间。 \\
 		\bottomrule
 	\end{tabularx}
 \end{table}
 
-综上，这种高度结构化、信息丰富的日志格式，为系统的\textbf{可观测性可}提供了坚实基础。
+综上，这种高度结构化、信息丰富的日志格式，为系统的\textbf{可观测性}提供了坚实基础。
 
 
 	
@@ -639,7 +662,7 @@
 \section{总结与展望}\label{s:6}
 
 \subsection{项目总结}\label{s:6.1}
-综上所述，本项目不仅圆满完成了课程设计的所有要求，更在系统架构、模型创新与工程完整性上进行了深入的探索与实现。我们承认，当前系统作为一个课程设计产出，在性能与健壮性上尚属“玩具”级别，但它完整地实践并验证了一套从AI模型研发到Web服务部署的技术流程，为后续的迭代开发奠定了坚实基础。
+综上所述，本项目不仅圆满完成了课程设计的所有要求，更在系统架构、模型创新与工程完整性上进行了深入的探索与实现。我们认为，\textbf{当前系统作为一个课程设计产出，在性能与健壮性上尚属“玩具”级别，但它完整地实践并验证了一套从AI模型研发到Web服务部署的技术流程}。
 
 回顾整个项目，核心成果可总结为以下三个方面：
 \begin{itemize}[leftmargin=*, topsep=0.5ex, itemsep=0.5ex]
